@@ -139,13 +139,13 @@
 </head>
 <body>
 
-<div class="gate" id="gate">
+<div class="gate" id="gate" style="display:none">
   <div class="gate-card"><h2>Admin</h2><p>LIMINAL SPACE 신청 관리 페이지입니다.</p>
     <input type="password" id="pw" placeholder="비밀번호 입력" /><button class="btn" id="loginBtn">로그인</button>
     <div class="hint">초안 비밀번호: <b>liminal</b></div></div>
 </div>
 
-<div class="layout" id="app" style="display:none">
+<div class="layout" id="app" style="display:flex">
   <aside class="sidebar">
     <div class="sb-brand"><div class="t">LIMINAL SPACE</div><div class="s">ADMIN CONSOLE</div></div>
     <nav class="sb-nav">
@@ -622,8 +622,9 @@ document.getElementById('d_date').addEventListener('change',()=>{document.getEle
 document.getElementById('dSave').addEventListener('click',()=>{const l=load();const a=l.find(x=>x.id===detailId);if(!a)return;a.name=dval('d_name');a.phone=dval('d_phone');a.email=dval('d_email');a.nationality=dval('d_nat');a.branch=dval('d_branch');a.class=dval('d_class');a.size=dval('d_size');a.date=dval('d_date');a.time=dval('d_time');a.people=dval('d_people')||'1';a.msg=dval('d_msg');a.status=dval('d_status');save(l);closeDetail();renderList();renderOverview();});
 document.getElementById('dDelete').addEventListener('click',()=>{if(!detailId)return;if(confirm('이 신청을 삭제할까요?')){save(load().filter(x=>x.id!==detailId));closeDetail();renderList();renderOverview();}});
 
-/* 데이터 로드(Supabase 또는 localStorage) 후 진입 (로그인 임시 숨김) */
-(window.LS ? LS.init() : Promise.resolve()).then(showApp);
+/* 로그인 화면 숨김 (개발 모드) — 화면 즉시 표시 후 데이터 로드되면 렌더
+ * 나중에 로그인 켜려면: 위 #gate/#app의 인라인 display 를 되돌리고 .then(showApp) 으로 변경 */
+(window.LS ? LS.init() : Promise.resolve()).then(renderAll);
 </script>
 </body>
 </html>
