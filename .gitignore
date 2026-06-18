@@ -4,3 +4,5 @@ node_modules/
 # 변환 임시물
 assets/page-*.png
 assets/thumb-*.png
+# 버전 보관 폴더 (로컬 전용 — 배포/저장소에는 올리지 않음)
+archive/
