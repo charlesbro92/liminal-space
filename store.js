@@ -24,14 +24,16 @@
   /* ---------- 조립: 테이블 rows → settings 객체 / apps 배열 ---------- */
   function assemble(t){
     var branchById={}, classById={}; // id→{branch,nameKo}
-    var settings={ branches:[], branchClasses:[], classDetails:[], defaultSchedule:{}, schedule:{}, site:{} };
+    var settings={ branches:[], branchClasses:[], classDetails:[], defaultSchedule:{}, schedule:{}, site:{}, gallery:[], partners:[] };
     (t.branches||[]).sort(function(a,b){return (a.sort||0)-(b.sort||0);}).forEach(function(b){
       branchById[b.id]=b.name;
       settings.branches.push({ id:b.id, name:b.name, contact:b.contact||'', link:b.link||'',
         location:tri(b.location_ko,b.location_en,b.location_vi), hours:tri(b.hours_ko,b.hours_en,b.hours_vi),
         instagram:b.instagram||'', facebook:b.facebook||'' });
     });
-    var si=(t.site_info||[])[0]; if(si) settings.site={ brandName:si.brand_name||'', estYear:si.est_year||'', copyrightYear:si.copyright_year||'' };
+    var si=(t.site_info||[])[0]; if(si){ settings.site={ brandName:si.brand_name||'', estYear:si.est_year||'', copyrightYear:si.copyright_year||'' };
+      try{ settings.gallery=JSON.parse(si.gallery_json||'[]')||[]; }catch(e){ settings.gallery=[]; }
+      try{ settings.partners=JSON.parse(si.partners_json||'[]')||[]; }catch(e){ settings.partners=[]; } }
     (t.classes||[]).sort(function(a,b){return (a.sort||0)-(b.sort||0);}).forEach(function(c){
       var bn=branchById[c.branch_id]||''; classById[c.id]={branch:bn, nameKo:c.name_ko||''};
       settings.branchClasses.push({ id:c.id, branch:bn, order:c.sort||0,
@@ -76,7 +78,8 @@
         location_ko:ko(b.location), location_en:en(b.location), location_vi:vi(b.location),
         hours_ko:ko(b.hours), hours_en:en(b.hours), hours_vi:vi(b.hours),
         instagram:b.instagram||'', facebook:b.facebook||'', sort:i }; });
-    var siteRow={ id:'main', brand_name:(s.site&&s.site.brandName)||'', est_year:(s.site&&s.site.estYear)||'', copyright_year:(s.site&&s.site.copyrightYear)||'' };
+    var siteRow={ id:'main', brand_name:(s.site&&s.site.brandName)||'', est_year:(s.site&&s.site.estYear)||'', copyright_year:(s.site&&s.site.copyrightYear)||'',
+      gallery_json:JSON.stringify(s.gallery||[]), partners_json:JSON.stringify(s.partners||[]) };
     var classRows=(s.branchClasses||[]).map(function(c,i){ var k=classKey(c.branch,ko(c.name)); var id=classIdByKey[k]||rid('cl'); clKeyToId[k]=id;
       return { id:id, branch_id:brNameToId[c.branch]||null, sort:(c.order!=null?c.order:i),
         name_ko:ko(c.name), name_en:en(c.name), name_vi:vi(c.name),
