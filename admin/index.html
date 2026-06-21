@@ -179,7 +179,6 @@
           <select id="amStatus"><option value="">전체 상태</option><option value="new">신규</option><option value="confirmed">확정</option><option value="done">완료</option><option value="cancel">취소</option></select>
           <div class="spacer"></div>
           <button class="btn ghost" id="exportBtn">CSV 내보내기</button>
-          <button class="btn ghost" id="seedBtn">샘플 추가</button>
         </div>
         <div class="bk-grid">
           <div class="cal sel" id="amCal"></div>
@@ -287,7 +286,6 @@ const STATUS={new:{label:'신규',cls:'b-new'},confirmed:{label:'확정',cls:'b-
 const DOW=['일','월','화','수','목','금','토'];
 const DAYKEYS=['sun','mon','tue','wed','thu','fri','sat'];
 function defaultDaySlots(){return [{cls:'',time:'11:00',cap:6},{cls:'',time:'14:00',cap:6},{cls:'',time:'17:00',cap:6}];}
-const SAIGON='사이공 (Saigon)', HANOI='하노이 (Hanoi)';
 const LANGS=[['ko','한글'],['en','영어'],['vi','베트남어']];
 let admLang='ko';   // 어드민 입력 언어
 /* 다국어 값 helper: 문자열이면 {ko}로 간주, 객체면 그대로 */
@@ -297,24 +295,10 @@ function keyOf(v){const o=txObj(v);return o.ko||o.en||o.vi||'';}   // 안정 키
 function tri(ko,en,vi){return {ko:ko||'',en:en||'',vi:vi||''};}
 const dWorkshopDesc=tri('100여 종 향 · 나만의 시그니처 완성','Over 100 notes · craft your signature','Hơn 100 loại hương · tạo signature của bạn');
 const DEFAULT_SETTINGS={
-  branches:[
-    {id:1,name:SAIGON,contact:'',link:'',location:tri("10° 47' 27.49\" N 106° 41' 36.89\" E · 빈탄","10° 47' 27.49\" N 106° 41' 36.89\" E · Binh Thanh","10° 47' 27.49\" N 106° 41' 36.89\" E · Bình Thạnh"),hours:tri('화–일 11:00–20:00 (월 휴무)','Tue–Sun 11:00–20:00 (Mon closed)','Thứ 3–CN 11:00–20:00 (nghỉ T2)'),instagram:'',facebook:''},
-    {id:2,name:HANOI,contact:'',link:'',location:tri('올드 쿼터 · 호안끼엠','Old Quarter · Hoan Kiem','Phố cổ · Hoàn Kiếm'),hours:tri('화–일 11:00–20:00 (월 휴무)','Tue–Sun 11:00–20:00 (Mon closed)','Thứ 3–CN 11:00–20:00 (nghỉ T2)'),instagram:'',facebook:''}
-  ],
+  branches:[],
   site:{brandName:'LIMINAL SPACE',estYear:'2026',copyrightYear:'2026'},
-  branchClasses:[
-    {id:1,branch:SAIGON,order:1,name:tri('Signature Scent Workshop','Signature Scent Workshop','Signature Scent Workshop'),desc:dWorkshopDesc,active:true},
-    {id:2,branch:SAIGON,order:2,name:tri('Liminal Pick 구독','Liminal Pick Subscription','Liminal Pick Đăng ký'),desc:tri('매월 2회 10ml 배송 · 커스텀','Twice-monthly 10ml delivery · custom','Giao 10ml 2 lần/tháng · tùy chỉnh'),active:true},
-    {id:3,branch:SAIGON,order:3,name:tri('기업·단체 주문제작','Corporate / Group','Doanh nghiệp · Tập thể'),desc:tri('행사 기획 · 향 제작/납품','Event planning · scent production','Lên ý tưởng sự kiện · chế tác hương'),active:true},
-    {id:4,branch:HANOI,order:1,name:tri('Signature Scent Workshop','Signature Scent Workshop','Signature Scent Workshop'),desc:dWorkshopDesc,active:true}
-  ],
-  classDetails:[
-    {id:1,branch:SAIGON,name:'Signature Scent Workshop',volume:10,priceKRW:'',priceVND:'300000',priceUSD:'',detail:tri('보틀 + 파우치 포함','Bottle + pouch included','Bao gồm chai + túi')},
-    {id:2,branch:SAIGON,name:'Signature Scent Workshop',volume:30,priceKRW:'',priceVND:'500000',priceUSD:'',detail:tri('보틀 + 파우치 포함','Bottle + pouch included','Bao gồm chai + túi')},
-    {id:3,branch:SAIGON,name:'Signature Scent Workshop',volume:50,priceKRW:'',priceVND:'700000',priceUSD:'',detail:tri('보틀 + 파우치 포함','Bottle + pouch included','Bao gồm chai + túi')},
-    {id:4,branch:SAIGON,name:'Liminal Pick 구독',volume:10,priceKRW:'',priceVND:'500000',priceUSD:'',detail:tri('','','')},
-    {id:5,branch:HANOI,name:'Signature Scent Workshop',volume:10,priceKRW:'',priceVND:'320000',priceUSD:'',detail:tri('보틀 + 파우치 포함','Bottle + pouch included','Bao gồm chai + túi')}
-  ],
+  branchClasses:[],
+  classDetails:[],
   defaultSchedule:{},
   schedule:{}
 };
@@ -452,7 +436,6 @@ document.getElementById('exportBtn').addEventListener('click',()=>{const list=lo
   const head=['신청일시','지점','이름','연락처','이메일','국적','클래스','용량','희망일','희망시간','인원','메모','상태'];
   const lines=[head.join(',')].concat(list.map(x=>[fmt(x.createdAt),x.branch||'',x.name,x.phone,x.email,x.nationality||'',x.class,x.size||'',x.date,x.time||'',x.people,(x.msg||'').replace(/\n/g,' '),(STATUS[x.status]||{}).label||x.status].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')));
   const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liminal_applications_'+new Date().toISOString().slice(0,10)+'.csv';a.click();});
-document.getElementById('seedBtn').addEventListener('click',()=>{const l=load();const t=ymd(new Date());l.push({id:Date.now(),createdAt:new Date().toISOString(),branch:SAIGON,name:'김민서',phone:'010-1234-5678',email:'minseo@example.com',class:'Signature Scent Workshop',size:'30ml',date:t,time:'14:00',people:'2',msg:'주말 오후 가능 시간 문의드려요.',status:'new'});save(l);renderList();renderOverview();});
 
 /* ===== BOOKING (지점별) ===== */
 let bkMonth=new Date();bkMonth.setDate(1);
@@ -647,6 +630,7 @@ document.getElementById('dDelete').addEventListener('click',()=>{if(!detailId)re
 
 /* 로그인 화면 숨김 (개발 모드) — 화면 즉시 표시 후 데이터 로드되면 렌더
  * 나중에 로그인 켜려면: 위 #gate/#app의 인라인 display 를 되돌리고 .then(showApp) 으로 변경 */
+if(window.LS&&LS.onError)LS.onError(function(msg){alert('저장 중 오류가 발생했습니다. 데이터가 서버에 반영되지 않았습니다.\n\n'+msg+'\n\n대부분 Supabase 테이블에 최신 컬럼이 없을 때 발생합니다. supabase_schema.sql을 다시 실행해 주세요.');});
 (window.LS ? LS.init() : Promise.resolve()).then(renderAll);
 </script>
 </body>

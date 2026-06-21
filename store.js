@@ -122,28 +122,37 @@
 
   /* ---------- 원격 실행 ---------- */
   var NONE='___none___';
+  var onErr=null;   // 저장 실패 시 호출되는 콜백(LS.onError로 등록)
+  async function _ck(promise,label){
+    try{ var r=await promise; if(r&&r.error){return label+': '+(r.error.message||r.error.code||JSON.stringify(r.error));} return null; }
+    catch(e){ return label+': '+(e&&e.message||e); }
+  }
   async function pushPlan(p){
-    if(p.siteRow) await client.from('site_info').upsert([p.siteRow]);
-    if(p.branchRows.length) await client.from('branches').upsert(p.branchRows);
-    if(p.classRows.length)  await client.from('classes').upsert(p.classRows);
-    if(p.detailRows.length) await client.from('class_details').upsert(p.detailRows);
-    await client.from('default_slots').delete().neq('id',NONE);
-    if(p.defRows.length) await client.from('default_slots').insert(p.defRows);
-    await client.from('schedule_slots').delete().neq('id',NONE);
-    if(p.schRows.length) await client.from('schedule_slots').insert(p.schRows);
-    await client.from('schedule_days').delete().neq('sched_date',NONE);
-    if(p.dayRows.length) await client.from('schedule_days').insert(p.dayRows);
-    if(p.delDetailIds.length) await client.from('class_details').delete().in('id',p.delDetailIds);
-    if(p.delClassIds.length)  await client.from('classes').delete().in('id',p.delClassIds);
-    if(p.delBranchIds.length) await client.from('branches').delete().in('id',p.delBranchIds);
+    var errs=[];
+    if(p.siteRow) errs.push(await _ck(client.from('site_info').upsert([p.siteRow]),'site_info'));
+    if(p.branchRows.length) errs.push(await _ck(client.from('branches').upsert(p.branchRows),'branches'));
+    if(p.classRows.length)  errs.push(await _ck(client.from('classes').upsert(p.classRows),'classes'));
+    if(p.detailRows.length) errs.push(await _ck(client.from('class_details').upsert(p.detailRows),'class_details'));
+    errs.push(await _ck(client.from('default_slots').delete().neq('id',NONE),'default_slots(del)'));
+    if(p.defRows.length) errs.push(await _ck(client.from('default_slots').insert(p.defRows),'default_slots'));
+    errs.push(await _ck(client.from('schedule_slots').delete().neq('id',NONE),'schedule_slots(del)'));
+    if(p.schRows.length) errs.push(await _ck(client.from('schedule_slots').insert(p.schRows),'schedule_slots'));
+    errs.push(await _ck(client.from('schedule_days').delete().neq('sched_date',NONE),'schedule_days(del)'));
+    if(p.dayRows.length) errs.push(await _ck(client.from('schedule_days').insert(p.dayRows),'schedule_days'));
+    if(p.delDetailIds.length) errs.push(await _ck(client.from('class_details').delete().in('id',p.delDetailIds),'class_details(del)'));
+    if(p.delClassIds.length)  errs.push(await _ck(client.from('classes').delete().in('id',p.delClassIds),'classes(del)'));
+    if(p.delBranchIds.length) errs.push(await _ck(client.from('branches').delete().in('id',p.delBranchIds),'branches(del)'));
+    return errs.filter(Boolean);
   }
   async function pushApps(newArr){
     var old=cache.apps||[], oldById={}; old.forEach(function(a){oldById[a.id]=a;});
     var keep={}, changed=[]; newArr.forEach(function(a){ keep[a.id]=1; var o=oldById[a.id];
       if(!o||JSON.stringify(o)!==JSON.stringify(a)) changed.push(a); });
     var del=old.filter(function(a){return !keep[a.id];}).map(function(a){return a.id;});
-    if(changed.length) await client.from('applications').upsert(changed.map(appToRow));
-    if(del.length) await client.from('applications').delete().in('id',del);
+    var errs=[];
+    if(changed.length) errs.push(await _ck(client.from('applications').upsert(changed.map(appToRow)),'applications'));
+    if(del.length) errs.push(await _ck(client.from('applications').delete().in('id',del),'applications(del)'));
+    return errs.filter(Boolean);
   }
 
   async function init(){
@@ -157,13 +166,14 @@
     if(!useRemote){ cache.settings=lsGet(KEY_SET,'{}'); cache.apps=lsGet(KEY_APPS,'[]'); }
   }
 
+  function _report(errs){ if(errs&&errs.length){ console.warn('save errors',errs); if(onErr)onErr(errs.join('\n')); } }
   function setSettings(v){
-    if(useRemote){ var p=plan(cache.settings||{}, v); applyIds(v,p); pushPlan(p).then(function(){},function(e){console.warn('settings save',e);}); }
+    if(useRemote){ var p=plan(cache.settings||{}, v); applyIds(v,p); pushPlan(p).then(_report,function(e){_report([String(e&&e.message||e)]);}); }
     else { lsSet(KEY_SET, v); }
     cache.settings = v;   // 안정 ID가 주입된 객체를 캐시 (다음 분해의 기준)
   }
   function setApps(v){
-    if(useRemote){ pushApps(v).then(function(){},function(e){console.warn('apps save',e);}); }
+    if(useRemote){ pushApps(v).then(_report,function(e){_report([String(e&&e.message||e)]);}); }
     else { lsSet(KEY_APPS, v); }
     cache.apps = v;
   }
@@ -172,6 +182,7 @@
     init:init, useRemote:function(){return useRemote;},
     getApps:function(){ return Array.isArray(cache.apps)?cache.apps:[]; }, setApps:setApps,
     getSettings:function(){ return (cache.settings&&typeof cache.settings==='object')?cache.settings:{}; }, setSettings:setSettings,
+    onError:function(fn){ onErr=fn; },   // 저장 실패 콜백 등록
     _assemble:assemble, _plan:plan   // 단위 테스트용
   };
 })();

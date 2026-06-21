@@ -443,10 +443,7 @@
       <div class="modal-step active" data-step="1">
         <div class="step-label" data-i18n="modal.step1">STEP 1 / 5</div>
         <div class="step-q" data-i18n="modal.q0">방문할 지점을 선택해 주세요.</div>
-        <div class="opt-list" data-field="branch">
-          <div class="opt" data-val="사이공 (Saigon)"><div><div class="ti" data-i18n="modal.br1">사이공 (Saigon)</div><div class="de" data-i18n="modal.br1d">10° 47' 27.49" N 106° 41' 36.89" E · 빈탄</div></div></div>
-          <div class="opt" data-val="하노이 (Hanoi)"><div><div class="ti" data-i18n="modal.br2">하노이 (Hanoi)</div><div class="de" data-i18n="modal.br2d">올드 쿼터 · 호안끼엠</div></div></div>
-        </div>
+        <div class="opt-list" data-field="branch"></div>
         <div class="err" data-err="branch" data-i18n="modal.err">항목을 선택해 주세요.</div>
       </div>
 
@@ -454,13 +451,7 @@
       <div class="modal-step" data-step="2">
         <div class="step-label" data-i18n="modal.step2">STEP 2 / 5</div>
         <div class="step-q" data-i18n="modal.q1">어떤 프로그램을 신청할까요?</div>
-        <div class="opt-list" data-field="class">
-          <div class="opt" data-val="Signature Scent Workshop"><div><div class="ti" data-i18n="prog.w.name">시그니처 센트 워크숍</div><div class="de" data-i18n="modal.c1d">100여 종 향 · 나만의 시그니처 완성</div></div><div class="pr">300,000₫~</div></div>
-          <div class="opt" data-val="Liminal Pick 구독"><div><div class="ti" data-i18n="prog.sub.name">Liminal Pick · 구독</div><div class="de" data-i18n="modal.c2d">매월 2회 10ml 배송 · 커스텀</div></div><div class="pr">500,000₫</div></div>
-          <div class="opt" data-val="기업·단체 주문제작"><div><div class="ti" data-i18n="prog.corp.name">기업 · 단체 주문제작</div><div class="de" data-i18n="modal.c3d">행사 기획 · 향 제작/납품</div></div><div class="pr" data-i18n="prog.inquiry">가격 문의</div></div>
-          <div class="opt" data-val="대관·콜라보레이션"><div><div class="ti" data-i18n="prog.rent.name">대관 · 콜라보레이션</div><div class="de" data-i18n="modal.c4d">공간 대관 · 브랜드 협업</div></div><div class="pr" data-i18n="prog.inquiry">가격 문의</div></div>
-          <div class="opt" data-val="인플루언서·마케터"><div><div class="ti" data-i18n="prog.inf.name">인플루언서 · 마케터</div><div class="de" data-i18n="modal.c5d">협업 · 콘텐츠 프로그램</div></div><div class="pr" data-i18n="prog.inquiry">가격 문의</div></div>
-        </div>
+        <div class="opt-list" data-field="class"></div>
         <div class="err" data-err="class" data-i18n="modal.err">항목을 선택해 주세요.</div>
       </div>
 
@@ -468,11 +459,7 @@
       <div class="modal-step" data-step="3">
         <div class="step-label" data-i18n="modal.step3">STEP 3 / 5</div>
         <div class="step-q" data-i18n="modal.q2">완성할 향수 용량을 골라주세요.</div>
-        <div class="opt-list" data-field="size">
-          <div class="opt" data-val="10ml"><div><div class="ti">10ml</div><div class="de" data-i18n="modal.sizeinc">보틀 + 파우치 포함</div></div><div class="pr">300,000₫</div></div>
-          <div class="opt" data-val="30ml"><div><div class="ti">30ml</div><div class="de" data-i18n="modal.sizeinc">보틀 + 파우치 포함</div></div><div class="pr">500,000₫</div></div>
-          <div class="opt" data-val="50ml"><div><div class="ti">50ml</div><div class="de" data-i18n="modal.sizeinc">보틀 + 파우치 포함</div></div><div class="pr">700,000₫</div></div>
-        </div>
+        <div class="opt-list" data-field="size"></div>
         <div class="err" data-err="size" data-i18n="modal.err">항목을 선택해 주세요.</div>
       </div>
 
@@ -668,7 +655,6 @@ document.querySelectorAll('#navLinks a').forEach(a=>{
 const STORE_KEY='liminal_applications';
 const SET_KEY='liminal_settings';
 const DEFAULT_DAY=[{cls:'',time:'11:00',cap:6},{cls:'',time:'14:00',cap:6},{cls:'',time:'17:00',cap:6}];
-const SAIGON='사이공 (Saigon)',HANOI='하노이 (Hanoi)';
 /* 다국어 helper */
 function curLang(){return document.documentElement.lang||'ko';}
 function txObj(v){return (v&&typeof v==='object'&&!Array.isArray(v))?v:(v?{ko:String(v)}:{});}
@@ -678,24 +664,10 @@ function tri(ko,en,vi){return {ko:ko||'',en:en||'',vi:vi||''};}
 const _wd=tri('100여 종 향 · 나만의 시그니처 완성','Over 100 notes · craft your signature','Hơn 100 loại hương · tạo signature của bạn');
 const _di=tri('보틀 + 파우치 포함','Bottle + pouch included','Bao gồm chai + túi');
 const INDEX_DEFAULTS={
-  branches:[
-    {name:SAIGON,contact:'',link:'',location:tri("10° 47' 27.49\" N 106° 41' 36.89\" E · 빈탄","10° 47' 27.49\" N 106° 41' 36.89\" E · Binh Thanh","10° 47' 27.49\" N 106° 41' 36.89\" E · Bình Thạnh"),hours:tri('화–일 11:00–20:00 (월 휴무)','Tue–Sun 11:00–20:00 (Mon closed)','Thứ 3–CN 11:00–20:00 (nghỉ T2)'),instagram:'',facebook:''},
-    {name:HANOI,contact:'',link:'',location:tri('올드 쿼터 · 호안끼엠','Old Quarter · Hoan Kiem','Phố cổ · Hoàn Kiếm'),hours:tri('화–일 11:00–20:00 (월 휴무)','Tue–Sun 11:00–20:00 (Mon closed)','Thứ 3–CN 11:00–20:00 (nghỉ T2)'),instagram:'',facebook:''}
-  ],
+  branches:[],
   site:{brandName:'LIMINAL SPACE',estYear:'2026',copyrightYear:'2026'},
-  branchClasses:[
-    {branch:SAIGON,order:1,name:tri('Signature Scent Workshop','Signature Scent Workshop','Signature Scent Workshop'),desc:_wd,active:true},
-    {branch:SAIGON,order:2,name:tri('Liminal Pick 구독','Liminal Pick Subscription','Liminal Pick Đăng ký'),desc:tri('매월 2회 10ml 배송 · 커스텀','Twice-monthly 10ml delivery · custom','Giao 10ml 2 lần/tháng · tùy chỉnh'),active:true},
-    {branch:SAIGON,order:3,name:tri('기업·단체 주문제작','Corporate / Group','Doanh nghiệp · Tập thể'),desc:tri('행사 기획 · 향 제작/납품','Event planning · scent production','Lên ý tưởng sự kiện · chế tác hương'),active:true},
-    {branch:HANOI,order:1,name:tri('Signature Scent Workshop','Signature Scent Workshop','Signature Scent Workshop'),desc:_wd,active:true}
-  ],
-  classDetails:[
-    {branch:SAIGON,name:'Signature Scent Workshop',volume:10,priceKRW:'',priceVND:'300000',priceUSD:'',detail:_di},
-    {branch:SAIGON,name:'Signature Scent Workshop',volume:30,priceKRW:'',priceVND:'500000',priceUSD:'',detail:_di},
-    {branch:SAIGON,name:'Signature Scent Workshop',volume:50,priceKRW:'',priceVND:'700000',priceUSD:'',detail:_di},
-    {branch:SAIGON,name:'Liminal Pick 구독',volume:10,priceKRW:'',priceVND:'500000',priceUSD:'',detail:tri('','','')},
-    {branch:HANOI,name:'Signature Scent Workshop',volume:10,priceKRW:'',priceVND:'320000',priceUSD:'',detail:_di}
-  ],
+  branchClasses:[],
+  classDetails:[],
   defaultSchedule:{},schedule:{}
 };
 function getSettings(){const s=(window.LS?LS.getSettings():{})||{};
