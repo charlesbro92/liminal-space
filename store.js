@@ -127,22 +127,34 @@
     try{ var r=await promise; if(r&&r.error){return label+': '+(r.error.message||r.error.code||JSON.stringify(r.error));} return null; }
     catch(e){ return label+': '+(e&&e.message||e); }
   }
+  // FK 순서를 지키되 독립 작업은 병렬로 — 저장 체감속도 개선
   async function pushPlan(p){
     var errs=[];
-    if(p.siteRow) errs.push(await _ck(client.from('site_info').upsert([p.siteRow]),'site_info'));
-    if(p.branchRows.length) errs.push(await _ck(client.from('branches').upsert(p.branchRows),'branches'));
-    if(p.classRows.length)  errs.push(await _ck(client.from('classes').upsert(p.classRows),'classes'));
-    if(p.detailRows.length) errs.push(await _ck(client.from('class_details').upsert(p.detailRows),'class_details'));
-    errs.push(await _ck(client.from('default_slots').delete().neq('id',NONE),'default_slots(del)'));
-    if(p.defRows.length) errs.push(await _ck(client.from('default_slots').insert(p.defRows),'default_slots'));
-    errs.push(await _ck(client.from('schedule_slots').delete().neq('id',NONE),'schedule_slots(del)'));
-    if(p.schRows.length) errs.push(await _ck(client.from('schedule_slots').insert(p.schRows),'schedule_slots'));
-    errs.push(await _ck(client.from('schedule_days').delete().neq('sched_date',NONE),'schedule_days(del)'));
-    if(p.dayRows.length) errs.push(await _ck(client.from('schedule_days').insert(p.dayRows),'schedule_days'));
-    if(p.delDetailIds.length) errs.push(await _ck(client.from('class_details').delete().in('id',p.delDetailIds),'class_details(del)'));
-    if(p.delClassIds.length)  errs.push(await _ck(client.from('classes').delete().in('id',p.delClassIds),'classes(del)'));
-    if(p.delBranchIds.length) errs.push(await _ck(client.from('branches').delete().in('id',p.delBranchIds),'branches(del)'));
-    return errs.filter(Boolean);
+    function add(arr){ (arr||[]).forEach(function(e){ if(e) errs.push(e); }); }
+    // 1단계: 부모(branches)·site_info 업서트 + 슬롯/휴무 전체삭제 (서로 독립 → 병렬)
+    add(await Promise.all([
+      p.siteRow ? _ck(client.from('site_info').upsert([p.siteRow]),'site_info') : null,
+      p.branchRows.length ? _ck(client.from('branches').upsert(p.branchRows),'branches') : null,
+      _ck(client.from('default_slots').delete().neq('id',NONE),'default_slots(del)'),
+      _ck(client.from('schedule_slots').delete().neq('id',NONE),'schedule_slots(del)'),
+      _ck(client.from('schedule_days').delete().neq('sched_date',NONE),'schedule_days(del)')
+    ]));
+    // 2단계: classes 업서트 (branches 필요)
+    if(p.classRows.length) add([await _ck(client.from('classes').upsert(p.classRows),'classes')]);
+    // 3단계: class_details 업서트 + 슬롯/휴무 삽입 + 삭제분(detail) (branches·classes 필요 → 서로 독립 병렬)
+    add(await Promise.all([
+      p.detailRows.length ? _ck(client.from('class_details').upsert(p.detailRows),'class_details') : null,
+      p.defRows.length ? _ck(client.from('default_slots').insert(p.defRows),'default_slots') : null,
+      p.schRows.length ? _ck(client.from('schedule_slots').insert(p.schRows),'schedule_slots') : null,
+      p.dayRows.length ? _ck(client.from('schedule_days').insert(p.dayRows),'schedule_days') : null,
+      p.delDetailIds.length ? _ck(client.from('class_details').delete().in('id',p.delDetailIds),'class_details(del)') : null
+    ]));
+    // 4단계: 삭제된 classes·branches 제거 (branches 삭제는 종속행 cascade)
+    add(await Promise.all([
+      p.delClassIds.length ? _ck(client.from('classes').delete().in('id',p.delClassIds),'classes(del)') : null,
+      p.delBranchIds.length ? _ck(client.from('branches').delete().in('id',p.delBranchIds),'branches(del)') : null
+    ]));
+    return errs;
   }
   async function pushApps(newArr){
     var old=cache.apps||[], oldById={}; old.forEach(function(a){oldById[a.id]=a;});
