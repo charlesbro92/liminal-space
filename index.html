@@ -214,10 +214,14 @@
   @media(max-width:640px){.carousel-arrow{width:34px;height:34px;font-size:18px}}
   /* ---------- SPACE 마퀴(연속 흐름) ---------- */
   .marquee{overflow:hidden;width:100%;margin-top:14px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-  .marquee-track{display:flex;width:max-content;will-change:transform;animation:marquee linear infinite}
-  .marquee:hover .marquee-track{animation-play-state:paused}
-  .mcard{flex:0 0 auto;width:clamp(280px,30vw,440px);height:clamp(220px,34vh,360px);margin-right:18px;overflow:hidden;background:#16171a}
-  .mcard img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.2)}
+  .marquee-track{display:flex;width:max-content;will-change:transform;animation-name:marquee;animation-timing-function:linear;animation-iteration-count:infinite;animation-duration:var(--mq-dur,40s)}
+  .marquee:hover .marquee-track{animation-duration:calc(var(--mq-dur,40s) * 2)}  /* 호버 시 멈추지 않고 50% 더 느리게 */
+  .mcard{flex:0 0 auto;width:clamp(280px,30vw,440px);margin-right:20px}
+  .mcard .mc-img{width:100%;height:clamp(200px,30vh,320px);overflow:hidden;background:#16171a}
+  .mcard .mc-img img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.2)}
+  .mcard .mc-cap{padding:14px 2px 0}
+  .mcard .mc-t{font-weight:700;font-size:14px;color:var(--ink);letter-spacing:.01em}
+  .mcard .mc-d{font-size:12.5px;color:var(--ink-soft);line-height:1.65;margin-top:6px;white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
   /* ---------- CTA 밴드 ---------- */
@@ -734,6 +738,7 @@ function setLang(lang){
   if(typeof renderMap==='function') renderMap();                  // 지도(언어별 위치 텍스트) 재적용
   if(typeof renderGallery==='function') renderGallery();          // 갤러리 캡션 언어 재적용
   if(typeof renderPartners==='function') renderPartners();
+  if(typeof initSpaceCarousel==='function') initSpaceCarousel();   // 공간 마퀴 캡션 언어 재적용
 }
 document.querySelectorAll('.lang button').forEach(b=>{
   b.addEventListener('click',()=>setLang(b.dataset.lang));
@@ -955,13 +960,23 @@ function initSpaceCarousel(){
   if(!items.length) items=GALLERY_PLACEHOLDER;
   if(!items.length){ if(sec)sec.style.display='none'; return; }
   if(sec)sec.style.display='';
-  const card=g=>`<div class="mcard"><img src="${esc(g.img)}" alt="LIMINAL SPACE" loading="lazy"></div>`;
+  const lang=curLang();
+  const card=g=>{
+    const t=esc(Lval(g.title,lang)), d=esc(Lval(g.desc,lang));
+    return `<div class="mcard"><div class="mc-img"><img src="${esc(g.img)}" alt="LIMINAL SPACE" loading="lazy"></div>`
+      +`<div class="mc-cap">${t?`<div class="mc-t">${t}</div>`:''}${d?`<div class="mc-d">${d}</div>`:''}</div></div>`;
+  };
   const seq=items.map(card).join('');
   track.innerHTML=seq+seq;                       // 끊김 없는 루프(translateX -50%)
-  track.style.animationDuration=Math.max(18,items.length*3.2)+'s';  // 카드 수에 비례한 일정 속도
+  // 속도: 카드 1장당 ~6.4초(기존 대비 50% 감속). 호버 시 CSS가 2배(추가 50% 감속).
+  track.style.setProperty('--mq-dur', Math.max(36, items.length*6.4)+'s');
 }
 /* 갤러리 · 협업 로고 (어드민 관리; 비어있으면 예시 플레이스홀더 표시) */
-var GALLERY_PLACEHOLDER=(function(){var a=[];for(var i=1;i<=20;i++){a.push({img:'assets/gallery-'+i+'.jpg',title:tri('',''),desc:tri('','')});}return a;})();
+var GALLERY_PLACEHOLDER=(function(){var a=[];var d=tri(
+  '리미널 스페이스에서 진행된 향수 워크숍의 한 장면입니다. 공간과 향이 어우러진 순간을 기록합니다. (임시 설명 — 실제 내용으로 교체 예정)',
+  'A moment from a perfume workshop at LIMINAL SPACE, where space and scent meet. (Placeholder text — to be replaced.)',
+  'Một khoảnh khắc trong workshop nước hoa tại LIMINAL SPACE, nơi không gian và hương gặp nhau. (Văn bản tạm thời — sẽ thay thế.)');
+  for(var i=1;i<=20;i++){a.push({img:'assets/gallery-'+i+'.jpg',title:tri('',''),desc:d});}return a;})();
 var PARTNER_PLACEHOLDER=[
   {name:'BRAND 1',logo:'assets/logo-1.png',link:''},{name:'BRAND 2',logo:'assets/logo-2.png',link:''},
   {name:'BRAND 3',logo:'assets/logo-3.png',link:''},{name:'BRAND 4',logo:'assets/logo-4.png',link:''},
