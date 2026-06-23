@@ -59,7 +59,7 @@
     var apps=(t.applications||[]).map(function(a){ var cm=classById[a.class_id]||{};
       return { id:Number(a.id), createdAt:a.created_at, branch:branchById[a.branch_id]||'', 'class':cm.nameKo||'',
         size:a.size||'', date:a.want_date||'', time:a.want_time||'', people:a.people||'1',
-        name:a.name||'', phone:a.phone||'', email:a.email||'', nationality:a.nationality||'', msg:a.msg||'', status:a.status||'new' }; });
+        name:a.name||'', phone:a.phone||'', email:a.email||'', nationality:a.nationality||'', facebook:a.sns_facebook||'', instagram:a.sns_instagram||'', msg:a.msg||'', status:a.status||'new' }; });
     return { settings:settings, apps:apps };
   }
 
@@ -121,7 +121,7 @@
     var cId=(cache.settings.branchClasses||[]).reduce(function(r,c){return (c.branch===a.branch&&ko(c.name)===a['class'])?c.id:r;},null);
     return { id:a.id, created_at:a.createdAt||new Date().toISOString(), branch_id:bId, class_id:cId,
       size:a.size||'', want_date:a.date||'', want_time:a.time||'', people:String(a.people||'1'),
-      name:a.name||'', phone:a.phone||'', email:a.email||'', nationality:a.nationality||'', msg:a.msg||'', status:a.status||'new' }; }
+      name:a.name||'', phone:a.phone||'', email:a.email||'', nationality:a.nationality||'', sns_facebook:a.facebook||'', sns_instagram:a.instagram||'', msg:a.msg||'', status:a.status||'new' }; }
 
   /* ---------- 원격 실행 ---------- */
   var NONE='___none___';

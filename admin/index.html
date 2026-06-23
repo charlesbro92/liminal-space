@@ -281,6 +281,8 @@
     <div class="df"><label>연락처</label><input id="d_phone" /></div>
     <div class="df"><label>이메일</label><input id="d_email" /></div>
     <div class="df"><label>국적</label><input id="d_nat" /></div>
+    <div class="df"><label>Facebook</label><input id="d_fb" /></div>
+    <div class="df"><label>Instagram</label><input id="d_ig" /></div>
     <div class="df"><label>지점</label><select id="d_branch"></select></div>
     <div class="df"><label>클래스</label><select id="d_class"></select></div>
     <div class="df"><label>용량</label><select id="d_size"></select></div>
@@ -455,8 +457,8 @@ function renderAmView(){
 }
 ['amBranch','amStatus'].forEach(id=>document.getElementById(id).addEventListener('change',renderList));
 document.getElementById('exportBtn').addEventListener('click',()=>{const list=load();if(!list.length){alert('내보낼 신청이 없습니다.');return;}
-  const head=['신청일시','지점','이름','연락처','이메일','국적','클래스','용량','희망일','희망시간','인원','메모','상태'];
-  const lines=[head.join(',')].concat(list.map(x=>[fmt(x.createdAt),x.branch||'',x.name,x.phone,x.email,x.nationality||'',x.class,x.size||'',x.date,x.time||'',x.people,(x.msg||'').replace(/\n/g,' '),(STATUS[x.status]||{}).label||x.status].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')));
+  const head=['신청일시','지점','이름','연락처','이메일','국적','Facebook','Instagram','클래스','용량','희망일','희망시간','인원','메모','상태'];
+  const lines=[head.join(',')].concat(list.map(x=>[fmt(x.createdAt),x.branch||'',x.name,x.phone,x.email,x.nationality||'',x.facebook||'',x.instagram||'',x.class,x.size||'',x.date,x.time||'',x.people,(x.msg||'').replace(/\n/g,' '),(STATUS[x.status]||{}).label||x.status].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')));
   const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liminal_applications_'+new Date().toISOString().slice(0,10)+'.csv';a.click();});
 
 /* ===== BOOKING (지점별) ===== */
@@ -657,7 +659,7 @@ function dTimeOpts(branch,date,current){const times=date?[...new Set(effectiveSl
 function openDetail(id){
   const a=load().find(x=>x.id===id);if(!a)return;detailId=id;
   document.getElementById('dWhen').textContent='신청일시 '+fmt(a.createdAt);
-  document.getElementById('d_name').value=a.name||'';document.getElementById('d_phone').value=a.phone||'';document.getElementById('d_email').value=a.email||'';document.getElementById('d_nat').value=a.nationality||'';
+  document.getElementById('d_name').value=a.name||'';document.getElementById('d_phone').value=a.phone||'';document.getElementById('d_email').value=a.email||'';document.getElementById('d_nat').value=a.nationality||'';document.getElementById('d_fb').value=a.facebook||'';document.getElementById('d_ig').value=a.instagram||'';
   document.getElementById('d_date').value=a.date||'';document.getElementById('d_people').value=a.people||'1';document.getElementById('d_msg').value=a.msg||'';
   const brs=branchNames();if(a.branch&&!brs.includes(a.branch))brs.push(a.branch);
   document.getElementById('d_branch').innerHTML=brs.map(n=>`<option ${n===a.branch?'selected':''}>${esc(n)}</option>`).join('');
@@ -676,7 +678,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
 document.getElementById('d_branch').addEventListener('change',()=>{const b=dval('d_branch');const cls=classNamesOf(b);document.getElementById('d_class').innerHTML='<option value="">선택</option>'+cls.map(n=>`<option>${esc(n)}</option>`).join('');document.getElementById('d_size').innerHTML=dVolumeOpts(b,dval('d_class'),'');document.getElementById('d_time').innerHTML=dTimeOpts(b,dval('d_date'),'');});
 document.getElementById('d_class').addEventListener('change',()=>{document.getElementById('d_size').innerHTML=dVolumeOpts(dval('d_branch'),dval('d_class'),'');});
 document.getElementById('d_date').addEventListener('change',()=>{document.getElementById('d_time').innerHTML=dTimeOpts(dval('d_branch'),dval('d_date'),document.getElementById('d_time').value);});
-document.getElementById('dSave').addEventListener('click',()=>{const l=load();const a=l.find(x=>x.id===detailId);if(!a)return;a.name=dval('d_name');a.phone=dval('d_phone');a.email=dval('d_email');a.nationality=dval('d_nat');a.branch=dval('d_branch');a.class=dval('d_class');a.size=dval('d_size');a.date=dval('d_date');a.time=dval('d_time');a.people=dval('d_people')||'1';a.msg=dval('d_msg');a.status=dval('d_status');save(l);closeDetail();renderList();renderOverview();});
+document.getElementById('dSave').addEventListener('click',()=>{const l=load();const a=l.find(x=>x.id===detailId);if(!a)return;a.name=dval('d_name');a.phone=dval('d_phone');a.email=dval('d_email');a.nationality=dval('d_nat');a.facebook=dval('d_fb');a.instagram=dval('d_ig');a.branch=dval('d_branch');a.class=dval('d_class');a.size=dval('d_size');a.date=dval('d_date');a.time=dval('d_time');a.people=dval('d_people')||'1';a.msg=dval('d_msg');a.status=dval('d_status');save(l);closeDetail();renderList();renderOverview();});
 document.getElementById('dDelete').addEventListener('click',()=>{if(!detailId)return;if(confirm('이 신청을 삭제할까요?')){save(load().filter(x=>x.id!==detailId));closeDetail();renderList();renderOverview();}});
 
 /* 로그인 화면 숨김 (개발 모드) — 화면 즉시 표시 후 데이터 로드되면 렌더

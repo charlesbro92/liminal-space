@@ -31,7 +31,7 @@ const I18N = {
     "proc.s5.t":"Packaging","proc.s5.d":"We carefully wrap it in LIMINAL SPACE's own signature packaging.",
     "proc.philosophy":"LIMINAL SPACE is not a DIY where you simply mix scents. We interpret how fragrance interacts with people, personality, weather and circumstance, running the workshop so you can create the scent you truly want.",
     "proc.close":"Make a special memory in the one-of-a-kind space that is LIMINAL SPACE.",
-    "form.name":"Name","form.phone":"Phone","form.email":"Email","form.class":"Class","form.date":"Preferred date","form.people":"People","form.msg":"Message (optional)","form.nationality":"Nationality",
+    "form.name":"Name","form.phone":"Phone","form.email":"Email","form.class":"Class","form.date":"Preferred date","form.people":"People","form.msg":"Message (optional)","form.nationality":"Nationality","form.fb":"Facebook (optional)","form.ig":"Instagram (optional)",
     "modal.confirmlabel":"CONFIRM","modal.confirmq":"Please review your details.","modal.confirmnote":"If any information is incorrect, your application may not be processed properly. Please double-check your details before tapping Confirm & apply.",
     "modal.sub":"Class application · 5 steps","modal.step1":"STEP 1 / 5","modal.q0":"Please choose a branch to visit.",
     "modal.step2":"STEP 2 / 5","modal.q1":"Which program would you like?",
@@ -81,7 +81,7 @@ const I18N = {
     "proc.s5.t":"Đóng gói","proc.s5.d":"Chúng tôi đóng gói tỉ mỉ trong bao bì riêng của LIMINAL SPACE.",
     "proc.philosophy":"LIMINAL SPACE không phải là DIY chỉ trộn hương. Chúng tôi diễn giải mối quan hệ giữa hương thơm với con người, tính cách, thời tiết và hoàn cảnh, tổ chức workshop để bạn tạo nên mùi hương mình thực sự mong muốn.",
     "proc.close":"Hãy tạo nên kỷ niệm đặc biệt trong không gian độc nhất của LIMINAL SPACE.",
-    "form.name":"Họ tên","form.phone":"Số điện thoại","form.email":"Email","form.class":"Lớp học","form.date":"Ngày mong muốn","form.people":"Số người","form.msg":"Lời nhắn (tùy chọn)","form.nationality":"Quốc tịch",
+    "form.name":"Họ tên","form.phone":"Số điện thoại","form.email":"Email","form.class":"Lớp học","form.date":"Ngày mong muốn","form.people":"Số người","form.msg":"Lời nhắn (tùy chọn)","form.nationality":"Quốc tịch","form.fb":"Facebook (tùy chọn)","form.ig":"Instagram (tùy chọn)",
     "modal.confirmlabel":"XÁC NHẬN","modal.confirmq":"Vui lòng kiểm tra thông tin của bạn.","modal.confirmnote":"Nếu thông tin nhập sai, đăng ký có thể không được tiếp nhận đúng cách. Vui lòng kiểm tra lại thông tin trước khi nhấn Hoàn tất đăng ký.",
     "form.opt1":"Pha chế Signature","form.opt2":"Cặp đôi · Nhóm","form.opt3":"Atelier nâng cao",
     "form.submit":"Gửi đăng ký","form.note":"* Đây là bản nháp. Việc gửi thực sẽ hoạt động sau khi tích hợp.","form.ok":"Đã nhận đăng ký. Chúng tôi sẽ liên hệ với bạn.",
@@ -438,7 +438,10 @@ function populateTimes(){
     const lbl=past?(vi?'(đã qua)':en?'(passed)':'(지난 시간)'):full?(vi?'(kín)':en?'(full)':'(마감)'):(vi?`(còn ${remain})`:en?`(${remain} left)`:`(잔여 ${remain})`);
     return `<option value="${s.time}" ${dis?'disabled':''}>${s.time} ${lbl}</option>`;
   }).join('');
-  if(data.time) sel.value=data.time;
+  // 기본값: 비었거나 무효(마감/지난시간)면 가장 빠른 가용 시간 자동 선택
+  var ok=data.time && [].some.call(sel.options,function(o){return o.value===data.time && !o.disabled;});
+  if(!ok){ var first=[].find.call(sel.options,function(o){return o.value && !o.disabled;}); data.time=first?first.value:''; }
+  sel.value=data.time;
 }
 /* 잔여 인원 안내 */
 function updateCapNote(){
@@ -461,7 +464,9 @@ const btnBack=document.getElementById('btnBack');
 const btnNext=document.getElementById('btnNext');
 const TOTAL=5; // 입력 단계 수 (6번째는 완료화면)
 let cur=1;
-const data={branch:'',class:'',size:'',date:'',time:'',people:'1',name:'',phone:'',email:'',nationality:'',msg:''};
+const data={branch:'',class:'',size:'',date:'',time:'',people:'1',name:'',phone:'',dialcode:'',email:'',nationality:'',facebook:'',instagram:'',msg:''};
+/* 국적 → 국가번호 (선택 시 자동 입력, 수정 불가) */
+const DIAL={'대한민국 (Korea)':'+82','베트남 (Vietnam)':'+84','일본 (Japan)':'+81','중국 (China)':'+86','대만 (Taiwan)':'+886','홍콩 (Hong Kong)':'+852','싱가포르 (Singapore)':'+65','말레이시아 (Malaysia)':'+60','태국 (Thailand)':'+66','인도네시아 (Indonesia)':'+62','필리핀 (Philippines)':'+63','인도 (India)':'+91','미국 (USA)':'+1','캐나다 (Canada)':'+1','영국 (UK)':'+44','프랑스 (France)':'+33','독일 (Germany)':'+49','이탈리아 (Italy)':'+39','스페인 (Spain)':'+34','네덜란드 (Netherlands)':'+31','스위스 (Switzerland)':'+41','스웨덴 (Sweden)':'+46','러시아 (Russia)':'+7','호주 (Australia)':'+61','뉴질랜드 (New Zealand)':'+64','브라질 (Brazil)':'+55','멕시코 (Mexico)':'+52','아랍에미리트 (UAE)':'+971','사우디아라비아 (Saudi Arabia)':'+966','튀르키예 (Türkiye)':'+90','기타 (Other)':''};
 /* 국적 목록 (검색 가능한 datalist) */
 const COUNTRIES=['대한민국 (Korea)','베트남 (Vietnam)','일본 (Japan)','중국 (China)','대만 (Taiwan)','홍콩 (Hong Kong)','싱가포르 (Singapore)','말레이시아 (Malaysia)','태국 (Thailand)','인도네시아 (Indonesia)','필리핀 (Philippines)','인도 (India)','미국 (USA)','캐나다 (Canada)','영국 (UK)','프랑스 (France)','독일 (Germany)','이탈리아 (Italy)','스페인 (Spain)','네덜란드 (Netherlands)','스위스 (Switzerland)','스웨덴 (Sweden)','러시아 (Russia)','호주 (Australia)','뉴질랜드 (New Zealand)','브라질 (Brazil)','멕시코 (Mexico)','아랍에미리트 (UAE)','사우디아라비아 (Saudi Arabia)','튀르키예 (Türkiye)','기타 (Other)'];
 (function(){const dl=document.getElementById('natList');if(dl)dl.innerHTML=COUNTRIES.map(c=>`<option value="${c}"></option>`).join('');})();
@@ -486,7 +491,7 @@ function resetApplyData(preClass){
   var avail=slotsFor(data.date).filter(function(s){return !isPastSlot(data.date,s.time);}).map(function(s){return s.time;}).sort();
   data.time=avail.length?avail[0]:'';
   data.people='1';
-  data.name='';data.phone='';data.email='';data.nationality='';data.msg='';
+  data.name='';data.phone='';data.dialcode='';data.email='';data.nationality='';data.facebook='';data.instagram='';data.msg='';
 }
 function openModal(preClass){
   resetApplyData(preClass||'');     // 매번 기본값으로 초기화
@@ -591,9 +596,9 @@ function validate(n){
 }
 function renderConfirm(){
   const lang=curLang();
-  const L = lang==='en'?{branch:'Branch',class:'Class',size:'Volume',date:'Date',time:'Time',people:'People',name:'Name',phone:'Phone',email:'Email',nat:'Nationality',msg:'Note'}
-    : lang==='vi'?{branch:'Chi nhánh',class:'Lớp',size:'Dung tích',date:'Ngày',time:'Giờ',people:'Số người',name:'Họ tên',phone:'SĐT',email:'Email',nat:'Quốc tịch',msg:'Ghi chú'}
-    : {branch:'지점',class:'클래스',size:'용량',date:'날짜',time:'시간',people:'인원',name:'이름',phone:'연락처',email:'이메일',nat:'국적',msg:'메모'};
+  const L = lang==='en'?{branch:'Branch',class:'Class',size:'Volume',date:'Date',time:'Time',people:'People',name:'Name',phone:'Phone',email:'Email',nat:'Nationality',fb:'Facebook',ig:'Instagram',msg:'Note'}
+    : lang==='vi'?{branch:'Chi nhánh',class:'Lớp',size:'Dung tích',date:'Ngày',time:'Giờ',people:'Số người',name:'Họ tên',phone:'SĐT',email:'Email',nat:'Quốc tịch',fb:'Facebook',ig:'Instagram',msg:'Ghi chú'}
+    : {branch:'지점',class:'클래스',size:'용량',date:'날짜',time:'시간',people:'인원',name:'이름',phone:'연락처',email:'이메일',nat:'국적',fb:'Facebook',ig:'Instagram',msg:'메모'};
   const cObj=branchClassesOf(data.branch).find(c=>keyOf(c.name)===data.class);
   const clsDisp=cObj?Lval(cObj.name,lang):data.class;
   const inq=isInquiry();
@@ -601,14 +606,17 @@ function renderConfirm(){
   if(data.size && !inq) rows.push(['size',data.size]);
   rows.push(['date',data.date||'-']);
   if(!inq) rows.push(['time',data.time||'-'],['people',(data.people||'1')+(lang==='ko'?'명':'')]);
-  rows.push(['name',data.name],['phone',data.phone],['email',data.email],['nat',data.nationality]);
+  rows.push(['name',data.name],['phone',(data.dialcode?data.dialcode+' ':'')+data.phone],['email',data.email],['nat',data.nationality]);
+  if(data.facebook) rows.push(['fb',data.facebook]);
+  if(data.instagram) rows.push(['ig',data.instagram]);
   if(data.msg) rows.push(['msg',data.msg]);
   document.getElementById('confirmSummary').innerHTML=
     rows.map(([k,v])=>`<div class="sr"><span class="k">${L[k]}</span><span class="v"${k==='msg'?' style="white-space:pre-line;text-align:right"':''}>${esc(v)}</span></div>`).join('');
 }
 function submitApplication(){
   const entry={id:Date.now(),createdAt:new Date().toISOString(),
-    branch:data.branch,name:data.name,phone:data.phone,email:data.email,nationality:data.nationality,class:data.class,
+    branch:data.branch,name:data.name,phone:(data.dialcode?data.dialcode+' ':'')+(data.phone||''),email:data.email,nationality:data.nationality,
+    facebook:data.facebook||'',instagram:data.instagram||'',class:data.class,
     size:data.size,date:data.date,time:data.time,people:data.people||'1',
     msg:data.msg,status:'new'};
   try{const list=(window.LS?LS.getApps():[]).slice();list.push(entry);LS.setApps(list);}catch(err){console.warn('저장 실패',err);}
@@ -625,6 +633,10 @@ modal.querySelectorAll('.opt-list').forEach(bindOptList);
   if(dateInp)dateInp.addEventListener('input',()=>{collectInputs();data.time='';populateTimes();updateCapNote();hideErrors();});
   if(timeSel)timeSel.addEventListener('change',()=>{collectInputs();updateCapNote();hideErrors();});
   if(peopleInp)peopleInp.addEventListener('input',()=>{collectInputs();updateCapNote();hideErrors();});
+  // 국적 선택 → 국가번호 자동 입력(수정 불가)
+  const natInp=modal.querySelector('[data-field="nationality"]');
+  const dcInp=modal.querySelector('[data-field="dialcode"]');
+  if(natInp&&dcInp)natInp.addEventListener('input',()=>{dcInp.value=DIAL[natInp.value.trim()]||'';data.dialcode=dcInp.value;hideErrors();});
 })();
 /* nav */
 btnNext.addEventListener('click',()=>{

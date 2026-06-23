@@ -105,9 +105,13 @@ create table if not exists public.applications (
   want_time text,
   people text,
   name text, phone text, email text, nationality text, msg text,
+  sns_facebook text default '', sns_instagram text default '',
   status text not null default 'new'
 );
 create index if not exists applications_date_idx on public.applications(want_date);
+-- 기존 applications에 SNS 컬럼 보강
+alter table public.applications add column if not exists sns_facebook text default '';
+alter table public.applications add column if not exists sns_instagram text default '';
 create index if not exists applications_branch_idx on public.applications(branch_id);
 
 -- RLS (공개 데모/간단 비밀번호 모드: anon 읽기·쓰기 허용)

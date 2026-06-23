@@ -306,6 +306,10 @@
   .summary .sr .k{color:var(--ink-soft);font-size:12px;letter-spacing:.06em}
   .summary .sr .v{font-weight:600;text-align:right}
   .modal-foot{padding:16px 26px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;background:var(--paper)}
+  .modal-foot #btnNext{margin-left:auto}   /* 다음/접수 버튼은 항상 오른쪽 */
+  .phone-row{display:flex;gap:8px}
+  .phone-row .dialcode{width:78px;flex:0 0 78px;text-align:center;background:var(--paper);color:var(--ink-soft)}
+  .phone-row input[type=tel]{flex:1;min-width:0}
   .modal-done{text-align:center;padding:30px 10px}
   .modal-done .check{font-size:40px}
   .modal-done h3{font-size:20px;margin:12px 0 8px}

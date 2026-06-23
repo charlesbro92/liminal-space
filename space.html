@@ -111,21 +111,23 @@
         <div class="err" data-err="cap"></div>
       </div>
 
-      <!-- STEP 5: CONTACT + CONFIRM -->
+            <!-- STEP 5: CONTACT + CONFIRM -->
       <div class="modal-step" data-step="5">
         <div class="step-label" data-i18n="modal.step5">STEP 5 / 5</div>
         <div class="step-q" data-i18n="modal.q4">신청자 정보를 입력하고 확인해 주세요.</div>
         <div class="grid2">
           <div class="mfield"><label data-i18n="form.name">이름</label><input type="text" data-field="name" /></div>
-          <div class="mfield"><label data-i18n="form.phone">연락처</label><input type="tel" data-field="phone" /></div>
+          <div class="mfield"><label data-i18n="form.nationality">국적</label><input type="text" data-field="nationality" list="natList" autocomplete="off" placeholder="검색 또는 선택" /></div>
         </div>
+        <div class="mfield"><label data-i18n="form.phone">연락처</label><div class="phone-row"><input type="text" class="dialcode" data-field="dialcode" readonly placeholder="+--" /><input type="tel" data-field="phone" inputmode="numeric" placeholder="전화번호" /></div></div>
+        <div class="mfield"><label data-i18n="form.email">이메일</label><input type="email" data-field="email" /></div>
         <div class="grid2">
-          <div class="mfield"><label data-i18n="form.email">이메일</label><input type="email" data-field="email" /></div>
-          <div class="mfield"><label data-i18n="form.nationality">국적</label><input type="text" data-field="nationality" list="natList" autocomplete="off" data-i18n-ph="form.natph" placeholder="검색 또는 선택" /></div>
+          <div class="mfield"><label data-i18n="form.fb">Facebook (선택)</label><input type="text" data-field="facebook" placeholder="아이디 또는 링크" /></div>
+          <div class="mfield"><label data-i18n="form.ig">Instagram (선택)</label><input type="text" data-field="instagram" placeholder="아이디" /></div>
         </div>
         <datalist id="natList"></datalist>
         <div class="mfield"><label data-i18n="form.msg">남길 말 (선택)</label><textarea rows="2" data-field="msg"></textarea></div>
-        <div class="err" data-err="contact" data-i18n="modal.errcontact">메모를 제외한 모든 항목을 입력해 주세요.</div>
+        <div class="err" data-err="contact" data-i18n="modal.errcontact">이름·국적·연락처·이메일을 입력해 주세요.</div>
       </div>
 
       <!-- STEP 6: CONFIRM REVIEW -->
