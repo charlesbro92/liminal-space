@@ -15,10 +15,11 @@ create table if not exists public.branches (
   link text default '',
   location_ko text default '', location_en text default '', location_vi text default '',
   hours_ko text default '', hours_en text default '', hours_vi text default '',
-  instagram text default '', facebook text default '',
+  instagram text default '', facebook text default '', linktree text default '',
   sort int default 0
 );
--- (이미 branches가 있는 경우 대비) 운영시간 컬럼 보강
+-- (이미 branches가 있는 경우 대비) 운영시간·링크트리 컬럼 보강
+alter table public.branches add column if not exists linktree text default '';
 alter table public.branches add column if not exists hours_ko text default '';
 alter table public.branches add column if not exists hours_en text default '';
 alter table public.branches add column if not exists hours_vi text default '';

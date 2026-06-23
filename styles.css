@@ -379,3 +379,19 @@ section[id], footer[id]{scroll-margin-top:63px}  /* 고정 네비 높이에 딱 
 .gallery-grid[data-full]{grid-template-columns:repeat(3,1fr)}
 @media(max-width:900px){.gallery-grid[data-full]{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.gallery-grid[data-full]{grid-template-columns:1fr}}
+
+/* ===== 상단 네비 지점 소셜(호버 펼침) ===== */
+.socials{display:flex;align-items:center;gap:14px}
+.soc-group{display:flex;align-items:center;padding-right:14px;border-right:1px solid var(--line);cursor:default}
+.soc-group:last-child{border-right:0;padding-right:0}
+.soc-b{font-size:11px;letter-spacing:.1em;color:var(--ink-soft);font-weight:700;transition:color .15s ease}
+.soc-group:hover .soc-b,.soc-group:focus-within .soc-b{color:var(--ink)}
+.soc-icons{display:inline-flex;align-items:center;gap:7px;max-width:0;opacity:0;overflow:hidden;transition:max-width .32s ease,opacity .25s ease,margin-left .32s ease}
+.soc-group:hover .soc-icons,.soc-group:focus-within .soc-icons{max-width:96px;opacity:1;margin-left:9px}
+.soc-group a{display:inline-flex;align-items:center;color:var(--ink-soft);text-decoration:none;opacity:.85;transition:color .15s ease,opacity .15s ease,transform .15s ease}
+.soc-group a:hover{opacity:1;transform:translateY(-1px)}
+.soc-group a.ig:hover{color:#e1306c}
+.soc-group a.fb:hover{color:#1877f2}
+.soc-group a.lt:hover{color:#1ebe5d}
+.soc-group .ic{width:16px;height:16px;display:block}
+@media(max-width:980px){.socials{display:none}}

@@ -351,7 +351,7 @@ function renderSpaceFolderChips(){
   box.style.display='';
   var allLabel=lang==='en'?'All':(lang==='vi'?'Tất cả':'전체');
   function chip(fid,name,cover){return '<button class="folder-chip '+(spaceFolder===fid?'active':'')+'" data-fid="'+esc(fid)+'"><span class="fc-thumb" style="background-image:url(\''+esc(cover)+'\')"></span><span class="fc-name">'+esc(name)+'</span></button>';}
-  var html=chip('',allLabel,spaceCover(''));
+  var html=chip('',allLabel,(sortGal(spaceItemsAll())[0]||{}).img||'');   // 전체 = 모든 공간 사진 중 첫 번째(대표 우선)
   folders.forEach(function(f){ html+=chip(f.id,Lval(f.name,lang),spaceCover(f.id)); });
   box.innerHTML=html;
   box.querySelectorAll('.folder-chip').forEach(function(b){b.addEventListener('click',function(){spaceFolder=b.dataset.fid||'';renderSpaceFolderChips();initSpaceCarousel();});});
@@ -419,7 +419,7 @@ function renderFolderChips(){
   box.style.display='';
   var allLabel=lang==='en'?'All':(lang==='vi'?'Tất cả':'전체');
   function chip(fid,name,cover){return '<button class="folder-chip '+(galleryFolder===fid?'active':'')+'" data-fid="'+esc(fid)+'"><span class="fc-thumb" style="background-image:url(\''+esc(cover)+'\')"></span><span class="fc-name">'+esc(name)+'</span></button>';}
-  var html=chip('',allLabel,folderCover(''));
+  var html=chip('',allLabel,(sortGal(galItems())[0]||{}).img||'');   // 전체 = 모든 사진 중 첫 번째(대표 우선)
   folders.forEach(function(f){ html+=chip(f.id,Lval(f.name,lang),folderCover(f.id)); });
   box.innerHTML=html;
   box.querySelectorAll('.folder-chip').forEach(function(b){b.addEventListener('click',function(){galleryFolder=b.dataset.fid||'';renderFolderChips();renderGallery();});});
@@ -701,6 +701,27 @@ document.querySelectorAll('[data-open-apply]').forEach(b=>b.addEventListener('cl
   if(b.dataset.disabled)return;
   openModal(b.dataset.class||data.class||'');
 }));
+/* 상단 네비 지점별 소셜 버튼(호버 펼침) — 어드민 지점설정의 인스타·페북·링크트리 링크 사용 */
+function renderNavSocials(){
+  var langEl=document.querySelector('header .lang'); if(!langEl)return;
+  if(!document.getElementById('ls-svgdefs')){
+    var d=document.createElement('div'); d.id='ls-svgdefs'; d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+    d.innerHTML='<svg width="0" height="0" aria-hidden="true"><symbol id="ic-instagram" viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.25" fill="currentColor"/></symbol><symbol id="ic-facebook" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 21v-7.5h2.52l.38-3h-2.9V8.55c0-.87.24-1.46 1.49-1.46h1.59V4.41c-.28-.04-1.23-.12-2.32-.12-2.3 0-3.87 1.4-3.87 3.98V10.5H8.2v3h2.66V21h2.64z"/></symbol><symbol id="ic-linktree" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M10.5 13.6a3.5 3.5 0 0 0 5 0l2.3-2.3a3.5 3.5 0 0 0-5-5l-1 1M13.5 10.4a3.5 3.5 0 0 0-5 0l-2.3 2.3a3.5 3.5 0 0 0 5 5l1-1"/></symbol></svg>';
+    document.body.appendChild(d);
+  }
+  var brs=(getSettings().branches||[]).filter(function(b){return b&&b.name&&(b.instagram||b.facebook||b.linktree);});
+  var box=document.getElementById('navSocials');
+  if(!brs.length){ if(box)box.parentNode.removeChild(box); return; }
+  if(!box){ box=document.createElement('div'); box.className='socials'; box.id='navSocials'; langEl.parentNode.insertBefore(box, langEl); }
+  box.innerHTML=brs.map(function(b){
+    var nm=esc(b.name); var ic='';
+    if(b.instagram) ic+='<a class="ig" href="'+esc(b.instagram)+'" target="_blank" rel="noopener" aria-label="'+nm+' Instagram"><svg class="ic"><use href="#ic-instagram"/></svg></a>';
+    if(b.facebook)  ic+='<a class="fb" href="'+esc(b.facebook)+'" target="_blank" rel="noopener" aria-label="'+nm+' Facebook"><svg class="ic"><use href="#ic-facebook"/></svg></a>';
+    if(b.linktree)  ic+='<a class="lt" href="'+esc(b.linktree)+'" target="_blank" rel="noopener" aria-label="'+nm+' Linktree"><svg class="ic"><use href="#ic-linktree"/></svg></a>';
+    var shortName=esc((b.name.split('(')[0]||b.name).trim());
+    return '<div class="soc-group" tabindex="0"><span class="soc-b">'+shortName+'</span><span class="soc-icons">'+ic+'</span></div>';
+  }).join('');
+}
 /* 데이터 로드(Supabase 또는 localStorage) 후 초기 렌더 */
 (window.LS ? LS.init() : Promise.resolve()).then(function(){
   applyActiveStates();
@@ -714,6 +735,7 @@ document.querySelectorAll('[data-open-apply]').forEach(b=>b.addEventListener('cl
   renderFolderChips();
   renderGallery();
   renderPartners();
+  renderNavSocials();
 });
 /* close triggers */
 document.getElementById('modalClose').addEventListener('click',closeModal);

@@ -110,7 +110,7 @@
   .gen-row input[readonly]{background:#eeeef0;color:var(--ink-soft)}
   .head-row{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--coord)}
   #sub-branch .box{max-width:1320px}
-  .br-row{grid-template-columns:.9fr .8fr .9fr 1fr 1fr .9fr .9fr 44px}
+  .br-row{grid-template-columns:.85fr .75fr .85fr .95fr .95fr .85fr .85fr .85fr 42px}
   .bc-row{grid-template-columns:48px 1.1fr 1.5fr 92px 100px 44px}
   .cd-row{grid-template-columns:1fr 1fr 82px .58fr .58fr .58fr 82px 70px 1fr 56px}
   #sub-detail .box{max-width:1500px}
@@ -218,7 +218,7 @@
         <div class="subpanel active" id="sub-branch">
           <div class="box">
             <h3>지점 설정</h3><p class="desc">지점명·연락처·링크주소·위치와 지점별 소셜(인스타그램·페이스북) 링크를 등록합니다.</p>
-            <div class="gen-row br-row head-row"><div>지점명</div><div>연락처</div><div>링크주소</div><div>위치</div><div>운영시간</div><div>Instagram</div><div>Facebook</div><div></div></div>
+            <div class="gen-row br-row head-row"><div>지점명</div><div>연락처</div><div>링크주소</div><div>위치</div><div>운영시간</div><div>Instagram</div><div>Facebook</div><div>Linktree</div><div></div></div>
             <div id="brList"></div>
             <div class="save-row"><button class="btn ghost sm" id="brAdd">+ 지점 추가</button><button class="btn sm" id="brSave">저장</button><span class="saved" id="brSaved">저장됨 ✓</span></div>
           </div>
@@ -647,7 +647,7 @@ document.getElementById('lgSave').addEventListener('click',()=>{const s=loadSett
 
 /* 지점설정 (지점별 소셜 포함) */
 function renderBranches(){const s=loadSettings();
-  document.getElementById('brList').innerHTML=s.branches.map((b,i)=>`<div class="gen-row br-row" data-i="${i}" data-old="${esc(b.name)}"><input class="b-name" value="${esc(b.name)}" placeholder="지점명" /><input class="b-contact" value="${esc(b.contact)}" placeholder="연락처" /><input class="b-link" value="${esc(b.link)}" placeholder="링크주소" /><input class="b-loc" value="${esc(Lval(b.location,admLang))}" placeholder="위치 (${admLang})" /><input class="b-hours" value="${esc(Lval(b.hours,admLang))}" placeholder="운영시간 (${admLang})" /><input class="b-insta" value="${esc(b.instagram||'')}" placeholder="Instagram URL" /><input class="b-fb" value="${esc(b.facebook||'')}" placeholder="Facebook URL" /><button class="icon-btn b-del">삭제</button></div>`).join('');
+  document.getElementById('brList').innerHTML=s.branches.map((b,i)=>`<div class="gen-row br-row" data-i="${i}" data-old="${esc(b.name)}"><input class="b-name" value="${esc(b.name)}" placeholder="지점명" /><input class="b-contact" value="${esc(b.contact)}" placeholder="연락처" /><input class="b-link" value="${esc(b.link)}" placeholder="링크주소" /><input class="b-loc" value="${esc(Lval(b.location,admLang))}" placeholder="위치 (${admLang})" /><input class="b-hours" value="${esc(Lval(b.hours,admLang))}" placeholder="운영시간 (${admLang})" /><input class="b-insta" value="${esc(b.instagram||'')}" placeholder="Instagram URL" /><input class="b-fb" value="${esc(b.facebook||'')}" placeholder="Facebook URL" /><input class="b-lt" value="${esc(b.linktree||'')}" placeholder="Linktree URL" /><button class="icon-btn b-del">삭제</button></div>`).join('');
   document.querySelectorAll('#brList .b-del').forEach(b=>b.addEventListener('click',e=>{const i=+e.target.closest('.gen-row').dataset.i;const st=loadSettings();st.branches.splice(i,1);saveSettings(st);renderSettings();populateFilters();}));
   // 사이트 정보
   document.getElementById('inBrand').value=(s.site&&s.site.brandName)||'';
@@ -662,7 +662,7 @@ document.getElementById('brSave').addEventListener('click',()=>{
   const rename={};
   rows.forEach(r=>{const o=r.dataset.old||'';const n=r.querySelector('.b-name').value.trim();if(o&&n&&o!==n)rename[o]=n;});
   const prevBr=s.branches||[];
-  s.branches=rows.map(r=>{const old=r.dataset.old||'';const prev=prevBr.find(b=>b.name===old)||{};const loc=Object.assign({},txObj(prev.location));loc[admLang]=r.querySelector('.b-loc').value.trim();const hrs=Object.assign({},txObj(prev.hours));hrs[admLang]=r.querySelector('.b-hours').value.trim();return {id:Date.now()+Math.random(),name:r.querySelector('.b-name').value.trim(),contact:r.querySelector('.b-contact').value.trim(),link:r.querySelector('.b-link').value.trim(),location:loc,hours:hrs,instagram:r.querySelector('.b-insta').value.trim(),facebook:r.querySelector('.b-fb').value.trim()};}).filter(b=>b.name);
+  s.branches=rows.map(r=>{const old=r.dataset.old||'';const prev=prevBr.find(b=>b.name===old)||{};const loc=Object.assign({},txObj(prev.location));loc[admLang]=r.querySelector('.b-loc').value.trim();const hrs=Object.assign({},txObj(prev.hours));hrs[admLang]=r.querySelector('.b-hours').value.trim();return {id:Date.now()+Math.random(),name:r.querySelector('.b-name').value.trim(),contact:r.querySelector('.b-contact').value.trim(),link:r.querySelector('.b-link').value.trim(),location:loc,hours:hrs,instagram:r.querySelector('.b-insta').value.trim(),facebook:r.querySelector('.b-fb').value.trim(),linktree:r.querySelector('.b-lt').value.trim()};}).filter(b=>b.name);
   if(Object.keys(rename).length){
     (s.branchClasses||[]).forEach(c=>{if(rename[c.branch])c.branch=rename[c.branch];});
     (s.classDetails||[]).forEach(d=>{if(rename[d.branch])d.branch=rename[d.branch];});

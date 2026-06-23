@@ -29,7 +29,7 @@
       branchById[b.id]=b.name;
       settings.branches.push({ id:b.id, name:b.name, contact:b.contact||'', link:b.link||'',
         location:tri(b.location_ko,b.location_en,b.location_vi), hours:tri(b.hours_ko,b.hours_en,b.hours_vi),
-        instagram:b.instagram||'', facebook:b.facebook||'' });
+        instagram:b.instagram||'', facebook:b.facebook||'', linktree:b.linktree||'' });
     });
     var si=(t.site_info||[])[0]; if(si){ settings.site={ brandName:si.brand_name||'', estYear:si.est_year||'', copyrightYear:si.copyright_year||'' };
       try{ settings.gallery=JSON.parse(si.gallery_json||'[]')||[]; }catch(e){ settings.gallery=[]; }
@@ -80,7 +80,7 @@
       return { id:id, name:b.name, contact:b.contact||'', link:b.link||'',
         location_ko:ko(b.location), location_en:en(b.location), location_vi:vi(b.location),
         hours_ko:ko(b.hours), hours_en:en(b.hours), hours_vi:vi(b.hours),
-        instagram:b.instagram||'', facebook:b.facebook||'', sort:i }; });
+        instagram:b.instagram||'', facebook:b.facebook||'', linktree:b.linktree||'', sort:i }; });
     var siteRow={ id:'main', brand_name:(s.site&&s.site.brandName)||'', est_year:(s.site&&s.site.estYear)||'', copyright_year:(s.site&&s.site.copyrightYear)||'',
       gallery_json:JSON.stringify(s.gallery||[]), partners_json:JSON.stringify(s.partners||[]), galleryfolders_json:JSON.stringify(s.galleryFolders||[]),
       space_json:JSON.stringify(s.space||[]), spacefolders_json:JSON.stringify(s.spaceFolders||[]) };
