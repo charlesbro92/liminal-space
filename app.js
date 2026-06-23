@@ -127,6 +127,7 @@ function setLang(lang){
   if(typeof renderPartners==='function') renderPartners();
   if(typeof renderSpaceFolderChips==='function') renderSpaceFolderChips(); // 공간 폴더 칩 언어 재적용
   if(typeof initSpaceCarousel==='function') initSpaceCarousel();   // 공간 마퀴 캡션 언어 재적용
+  if(typeof renderNavSocials==='function') renderNavSocials();     // 네비 지점 라벨 언어 재적용
 }
 document.querySelectorAll('.lang button').forEach(b=>{
   b.addEventListener('click',()=>setLang(b.dataset.lang));
@@ -701,6 +702,17 @@ document.querySelectorAll('[data-open-apply]').forEach(b=>b.addEventListener('cl
   if(b.dataset.disabled)return;
   openModal(b.dataset.class||data.class||'');
 }));
+/* 지점명 언어별 라벨 (지점명은 단일 문자열이라, 알려진 지점명을 언어에 맞게 변환·없으면 원문) */
+var BRANCH_I18N={
+  '호치민':{ko:'호치민',en:'Ho Chi Minh',vi:'Hồ Chí Minh'},
+  '하노이':{ko:'하노이',en:'Hanoi',vi:'Hà Nội'},
+  '다낭':{ko:'다낭',en:'Da Nang',vi:'Đà Nẵng'}
+};
+function branchLabel(name){
+  var key=((name||'').split('(')[0]||name||'').trim();
+  var m=BRANCH_I18N[key];
+  return m?(m[curLang()]||m.ko||key):key;
+}
 /* 상단 네비 지점별 소셜 버튼(호버 펼침) — 어드민 지점설정의 인스타·페북·링크트리 링크 사용 */
 function renderNavSocials(){
   var langEl=document.querySelector('header .lang'); if(!langEl)return;
@@ -718,7 +730,7 @@ function renderNavSocials(){
     if(b.instagram) ic+='<a class="ig" href="'+esc(b.instagram)+'" target="_blank" rel="noopener" aria-label="'+nm+' Instagram"><svg class="ic"><use href="#ic-instagram"/></svg></a>';
     if(b.facebook)  ic+='<a class="fb" href="'+esc(b.facebook)+'" target="_blank" rel="noopener" aria-label="'+nm+' Facebook"><svg class="ic"><use href="#ic-facebook"/></svg></a>';
     if(b.linktree)  ic+='<a class="lt" href="'+esc(b.linktree)+'" target="_blank" rel="noopener" aria-label="'+nm+' Linktree"><svg class="ic"><use href="#ic-linktree"/></svg></a>';
-    var shortName=esc((b.name.split('(')[0]||b.name).trim());
+    var shortName=esc(branchLabel(b.name));
     return '<div class="soc-group" tabindex="0"><span class="soc-b">'+shortName+'</span><span class="soc-icons">'+ic+'</span></div>';
   }).join('');
 }
