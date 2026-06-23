@@ -122,6 +122,7 @@ function setLang(lang){
   if(typeof renderClasses==='function') renderClasses();          // 클래스 카드 언어/데이터 재적용
   if(typeof renderLocation==='function') renderLocation();        // 위치 섹션 언어 재적용
   if(typeof renderMap==='function') renderMap();                  // 지도(언어별 위치 텍스트) 재적용
+  if(typeof renderFolderChips==='function') renderFolderChips();  // 폴더 칩 언어 재적용
   if(typeof renderGallery==='function') renderGallery();          // 갤러리 캡션 언어 재적용
   if(typeof renderPartners==='function') renderPartners();
   if(typeof initSpaceCarousel==='function') initSpaceCarousel();   // 공간 마퀴 캡션 언어 재적용
@@ -386,11 +387,29 @@ var PARTNER_PLACEHOLDER=[
   {name:'BRAND 3',logo:'assets/logo-3.png',link:''},{name:'BRAND 4',logo:'assets/logo-4.png',link:''},
   {name:'BRAND 5',logo:'assets/logo-5.png',link:''},{name:'BRAND 6',logo:'assets/logo-6.png',link:''}
 ];
+var galleryFolder='';   // 활성 폴더 id ('' = 전체)
+function sortGal(arr){return arr.slice().sort(function(a,b){var fa=a.featured?0:1,fb=b.featured?0:1;if(fa!==fb)return fa-fb;return (Number(a.order)||999)-(Number(b.order)||999);});}
+function galItems(){var it=(getSettings().gallery||[]).filter(function(g){return g&&g.img;});if(!it.length)it=GALLERY_PLACEHOLDER;return it;}
+function folderCover(fid){var inf=sortGal(galItems().filter(function(g){return (g.folder||'')===fid;}));return inf[0]?inf[0].img:'';}
+function renderFolderChips(){
+  var box=document.getElementById('galleryFolders'); if(!box)return;
+  var lang=curLang();
+  var folders=(getSettings().galleryFolders||[]).slice().sort(function(a,b){return (Number(a.order)||999)-(Number(b.order)||999);});
+  if(!folders.length){ box.innerHTML=''; box.style.display='none'; galleryFolder=''; return; }
+  box.style.display='';
+  var allLabel=lang==='en'?'All':(lang==='vi'?'Tất cả':'전체');
+  function chip(fid,name,cover){return '<button class="folder-chip '+(galleryFolder===fid?'active':'')+'" data-fid="'+esc(fid)+'"><span class="fc-thumb" style="background-image:url(\''+esc(cover)+'\')"></span><span class="fc-name">'+esc(name)+'</span></button>';}
+  var html=chip('',allLabel,folderCover(''));
+  folders.forEach(function(f){ html+=chip(f.id,Lval(f.name,lang),folderCover(f.id)); });
+  box.innerHTML=html;
+  box.querySelectorAll('.folder-chip').forEach(function(b){b.addEventListener('click',function(){galleryFolder=b.dataset.fid||'';renderFolderChips();renderGallery();});});
+}
 function renderGallery(){
   const grid=document.getElementById('galleryGrid'); if(!grid)return;
   const lang=curLang();
-  let items=(getSettings().gallery||[]).filter(g=>g&&g.img);
-  if(!items.length) items=GALLERY_PLACEHOLDER;
+  let items=galItems();
+  if(galleryFolder) items=items.filter(function(g){return (g.folder||'')===galleryFolder;});
+  items=sortGal(items);
   if(!grid.hasAttribute('data-full')) items=items.slice(0,4);   // 홈은 4개, 갤러리 페이지(data-full)는 전체
   grid.innerHTML=items.map(g=>{
     const t=esc(Lval(g.title,lang)), d=esc(Lval(g.desc,lang));
@@ -402,6 +421,7 @@ function renderPartners(){
   const wrap=document.getElementById('logoStripWrap'), strip=document.getElementById('logoStrip'); if(!strip)return;
   let items=(getSettings().partners||[]).filter(p=>p&&p.logo);
   if(!items.length) items=PARTNER_PLACEHOLDER;
+  items=sortGal(items);   // 대표 먼저 + 순서
   if(!items.length){ if(wrap)wrap.style.display='none'; return; }
   if(wrap)wrap.style.display='';
   strip.innerHTML=items.map(p=>{
@@ -670,6 +690,7 @@ document.querySelectorAll('[data-open-apply]').forEach(b=>b.addEventListener('cl
   renderFooterSocial();
   renderSiteInfo();
   initSpaceCarousel();
+  renderFolderChips();
   renderGallery();
   renderPartners();
 });

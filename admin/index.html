@@ -114,8 +114,11 @@
   .bc-row{grid-template-columns:48px 1.1fr 1.5fr 92px 100px 44px}
   .cd-row{grid-template-columns:1fr 1fr 82px .58fr .58fr .58fr 82px 70px 1fr 56px}
   #sub-detail .box{max-width:1500px}
-  .gl-row{grid-template-columns:1.4fr 1fr 1.7fr .9fr 40px}
-  .lg-row{grid-template-columns:1fr 1.7fr 1fr 40px}
+  .gf-row{grid-template-columns:64px 1fr 44px}
+  .gl-row{grid-template-columns:1.2fr .85fr 1fr .8fr 46px 54px .7fr 38px}
+  .lg-row{grid-template-columns:1fr 1.4fr 46px 54px 1fr 38px}
+  .gen-row .ck{display:flex;align-items:center;justify-content:center}
+  .gen-row .ck input{width:18px;height:18px}
   .upwrap{display:flex;gap:6px;min-width:0}.upwrap input{flex:1;min-width:0}
   .upbtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:34px;border:1px solid var(--line);border-radius:2px;cursor:pointer;font-size:14px;background:#fff}
   .upbtn:hover{border-color:var(--ink)}
@@ -257,15 +260,21 @@
         </div>
 
         <div class="subpanel" id="sub-media">
-          <div class="box" style="max-width:1180px">
-            <h3>갤러리 항목</h3><p class="desc">랜딩 '갤러리(05)'에 표시됩니다. 이미지 URL과 제목·설명(현재 입력 언어 기준)을 등록하세요. 항목이 없으면 예시 플레이스홀더가 보입니다.</p>
-            <div class="gen-row gl-row head-row"><div>이미지 URL</div><div>제목</div><div>설명</div><div>링크(선택)</div><div></div></div>
+          <div class="box" style="max-width:1400px">
+            <h3>갤러리 폴더</h3><p class="desc">인덱스·갤러리 상단에 칩으로 표시됩니다. 폴더명(현재 입력 언어)·순서를 등록하세요. 각 폴더의 '대표' 1번 사진이 폴더 커버가 됩니다.</p>
+            <div class="gen-row gf-row head-row"><div>순서</div><div>폴더명</div><div></div></div>
+            <div id="gfList"></div>
+            <div class="save-row"><button class="btn ghost sm" id="gfAdd">+ 폴더 추가</button><button class="btn sm" id="gfSave">저장</button><span class="saved" id="gfSaved">저장됨 ✓</span></div>
+          </div>
+          <div class="box" style="max-width:1400px">
+            <h3>갤러리 항목</h3><p class="desc">랜딩 '갤러리(05)'에 표시됩니다. 이미지(업로드/URL)·제목·설명·폴더·대표·순서를 등록하세요. 대표 사진이 가장 앞에 표시되고, 같은 그룹은 순서대로 정렬됩니다.</p>
+            <div class="gen-row gl-row head-row"><div>이미지</div><div>제목</div><div>설명</div><div>폴더</div><div>대표</div><div>순서</div><div>링크</div><div></div></div>
             <div id="glList"></div>
             <div class="save-row"><button class="btn ghost sm" id="glAdd">+ 항목 추가</button><button class="btn sm" id="glSave">저장</button><span class="saved" id="glSaved">저장됨 ✓</span></div>
           </div>
-          <div class="box" style="max-width:1180px">
-            <h3>협업·언론 로고</h3><p class="desc">랜딩 갤러리 하단 '함께한 곳' 로고 스트립입니다. 로고 이미지 URL과 이름·링크를 등록하세요.</p>
-            <div class="gen-row lg-row head-row"><div>이름</div><div>로고 URL</div><div>링크(선택)</div><div></div></div>
+          <div class="box" style="max-width:1400px">
+            <h3>협업·언론 로고</h3><p class="desc">랜딩 갤러리 하단 '함께한 곳' 로고 스트립입니다. 로고(업로드/URL)·이름·대표·순서·링크를 등록하세요.</p>
+            <div class="gen-row lg-row head-row"><div>이름</div><div>로고</div><div>대표</div><div>순서</div><div>링크</div><div></div></div>
             <div id="lgList"></div>
             <div class="save-row"><button class="btn ghost sm" id="lgAdd">+ 로고 추가</button><button class="btn sm" id="lgSave">저장</button><span class="saved" id="lgSaved">저장됨 ✓</span></div>
           </div>
@@ -325,7 +334,8 @@ const DEFAULT_SETTINGS={
   defaultSchedule:{},
   schedule:{},
   gallery:[],
-  partners:[]
+  partners:[],
+  galleryFolders:[]
 };
 
 function load(){return window.LS?LS.getApps():[];}
@@ -530,7 +540,17 @@ function renderAdmLang(){
   document.getElementById('admLangTabs').innerHTML='<span class="head-row" style="align-self:center;margin-right:4px">입력 언어</span>'+LANGS.map(([k,l])=>`<button class="pill-tab ${k===admLang?'active':''}" data-l="${k}">${l}</button>`).join('');
   document.querySelectorAll('#admLangTabs .pill-tab').forEach(b=>b.addEventListener('click',()=>{admLang=b.dataset.l;renderSettings();}));
 }
-function renderSettings(){renderAdmLang();renderBranches();renderBranchClasses();renderClassDetails();renderDefaults();renderGalleryItems();renderPartnerItems();}
+function renderSettings(){renderAdmLang();renderBranches();renderBranchClasses();renderClassDetails();renderDefaults();renderGalleryFolders();renderGalleryItems();renderPartnerItems();}
+/* 갤러리 폴더 */
+function folderOpts(cur){const s=loadSettings();const fs=(s.galleryFolders||[]).slice().sort((a,b)=>(+a.order||999)-(+b.order||999));return '<option value="">(폴더 없음)</option>'+fs.map(f=>`<option value="${esc(f.id)}" ${f.id===cur?'selected':''}>${esc(Lval(f.name,admLang))}</option>`).join('');}
+function renderGalleryFolders(){
+  const list=document.getElementById('gfList'); if(!list)return;
+  const s=loadSettings();const fs=(s.galleryFolders||[]).slice().sort((a,b)=>(+a.order||999)-(+b.order||999));
+  list.innerHTML=fs.map((f,i)=>`<div class="gen-row gf-row" data-id="${f.id}"><input type="number" class="gf-order" value="${f.order??(i+1)}" /><input class="gf-name" value="${esc(Lval(f.name,admLang))}" placeholder="폴더명 (${admLang})" /><button class="icon-btn gf-del">삭제</button></div>`).join('');
+  list.querySelectorAll('.gf-del').forEach(b=>b.addEventListener('click',e=>e.target.closest('.gf-row').remove()));
+}
+document.getElementById('gfAdd').addEventListener('click',()=>{const s=loadSettings();s.galleryFolders=s.galleryFolders||[];s.galleryFolders.push({id:'f_'+Date.now().toString(36),name:{},order:s.galleryFolders.length+1});saveSettings(s);renderGalleryFolders();renderGalleryItems();});
+document.getElementById('gfSave').addEventListener('click',()=>{const s=loadSettings();const prev=s.galleryFolders||[];s.galleryFolders=[...document.querySelectorAll('#gfList .gf-row')].map(r=>{const id=r.dataset.id||('f_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5));const p=prev.find(x=>x.id===r.dataset.id)||{};const name=Object.assign({},txObj(p.name));name[admLang]=r.querySelector('.gf-name').value.trim();return {id,name,order:+r.querySelector('.gf-order').value||0};}).filter(f=>Lval(f.name,admLang)).sort((a,b)=>a.order-b.order);saveSettings(s);toast('gfSaved');renderGalleryFolders();renderGalleryItems();});
 /* 갤러리 항목 (랜딩 05) */
 function renderGalleryItems(){
   const list=document.getElementById('glList'); if(!list)return;
@@ -539,7 +559,10 @@ function renderGalleryItems(){
     <div class="upwrap"><input class="gl-img" value="${esc(g.img||'')}" placeholder="URL 또는 업로드 →" /><label class="upbtn" title="이미지 업로드">⬆<input type="file" class="upfile" accept="image/*" data-target="gl-img" hidden /></label></div>
     <input class="gl-title" value="${esc(Lval(g.title,admLang))}" placeholder="제목 (${admLang})" />
     <input class="gl-desc" value="${esc(Lval(g.desc,admLang))}" placeholder="설명 (${admLang})" />
-    <input class="gl-link" value="${esc(g.link||'')}" placeholder="링크(선택)" />
+    <select class="gl-folder">${folderOpts(g.folder||'')}</select>
+    <label class="ck"><input type="checkbox" class="gl-feat" ${g.featured?'checked':''} /></label>
+    <input type="number" class="gl-order" value="${g.order??(i+1)}" />
+    <input class="gl-link" value="${esc(g.link||'')}" placeholder="링크" />
     <button class="icon-btn gl-del">삭제</button></div>`).join('');
   list.querySelectorAll('.gl-del').forEach(b=>b.addEventListener('click',e=>e.target.closest('.gl-row').remove()));
   bindUploads(list);
@@ -558,8 +581,8 @@ function bindUploads(listEl){
     e.target.value='';
   }));
 }
-document.getElementById('glAdd').addEventListener('click',()=>{const s=loadSettings();s.gallery=s.gallery||[];s.gallery.push({img:'',title:{},desc:{},link:''});saveSettings(s);renderGalleryItems();});
-document.getElementById('glSave').addEventListener('click',()=>{const s=loadSettings();const prev=s.gallery||[];s.gallery=[...document.querySelectorAll('#glList .gl-row')].map(r=>{const p=prev[+r.dataset.i]||{};const title=Object.assign({},txObj(p.title));title[admLang]=r.querySelector('.gl-title').value.trim();const desc=Object.assign({},txObj(p.desc));desc[admLang]=r.querySelector('.gl-desc').value.trim();return {img:r.querySelector('.gl-img').value.trim(),title,desc,link:r.querySelector('.gl-link').value.trim()};}).filter(g=>g.img||Lval(g.title,admLang));saveSettings(s);toast('glSaved');renderGalleryItems();});
+document.getElementById('glAdd').addEventListener('click',()=>{const s=loadSettings();s.gallery=s.gallery||[];s.gallery.push({img:'',title:{},desc:{},link:'',folder:'',featured:false,order:s.gallery.length+1});saveSettings(s);renderGalleryItems();});
+document.getElementById('glSave').addEventListener('click',()=>{const s=loadSettings();const prev=s.gallery||[];s.gallery=[...document.querySelectorAll('#glList .gl-row')].map(r=>{const p=prev[+r.dataset.i]||{};const title=Object.assign({},txObj(p.title));title[admLang]=r.querySelector('.gl-title').value.trim();const desc=Object.assign({},txObj(p.desc));desc[admLang]=r.querySelector('.gl-desc').value.trim();return {img:r.querySelector('.gl-img').value.trim(),title,desc,link:r.querySelector('.gl-link').value.trim(),folder:r.querySelector('.gl-folder').value,featured:r.querySelector('.gl-feat').checked,order:+r.querySelector('.gl-order').value||0};}).filter(g=>g.img||Lval(g.title,admLang));saveSettings(s);toast('glSaved');renderGalleryItems();});
 /* 협업·언론 로고 */
 function renderPartnerItems(){
   const list=document.getElementById('lgList'); if(!list)return;
@@ -567,13 +590,15 @@ function renderPartnerItems(){
   list.innerHTML=(s.partners||[]).map((p,i)=>`<div class="gen-row lg-row" data-i="${i}">
     <input class="lg-name" value="${esc(p.name||'')}" placeholder="이름" />
     <div class="upwrap"><input class="lg-logo" value="${esc(p.logo||'')}" placeholder="URL 또는 업로드 →" /><label class="upbtn" title="로고 업로드">⬆<input type="file" class="upfile" accept="image/*" data-target="lg-logo" hidden /></label></div>
-    <input class="lg-link" value="${esc(p.link||'')}" placeholder="링크(선택)" />
+    <label class="ck"><input type="checkbox" class="lg-feat" ${p.featured?'checked':''} /></label>
+    <input type="number" class="lg-order" value="${p.order??(i+1)}" />
+    <input class="lg-link" value="${esc(p.link||'')}" placeholder="링크" />
     <button class="icon-btn lg-del">삭제</button></div>`).join('');
   list.querySelectorAll('.lg-del').forEach(b=>b.addEventListener('click',e=>e.target.closest('.lg-row').remove()));
   bindUploads(list);
 }
-document.getElementById('lgAdd').addEventListener('click',()=>{const s=loadSettings();s.partners=s.partners||[];s.partners.push({name:'',logo:'',link:''});saveSettings(s);renderPartnerItems();});
-document.getElementById('lgSave').addEventListener('click',()=>{const s=loadSettings();s.partners=[...document.querySelectorAll('#lgList .lg-row')].map(r=>({name:r.querySelector('.lg-name').value.trim(),logo:r.querySelector('.lg-logo').value.trim(),link:r.querySelector('.lg-link').value.trim()})).filter(p=>p.logo||p.name);saveSettings(s);toast('lgSaved');renderPartnerItems();});
+document.getElementById('lgAdd').addEventListener('click',()=>{const s=loadSettings();s.partners=s.partners||[];s.partners.push({name:'',logo:'',link:'',featured:false,order:s.partners.length+1});saveSettings(s);renderPartnerItems();});
+document.getElementById('lgSave').addEventListener('click',()=>{const s=loadSettings();s.partners=[...document.querySelectorAll('#lgList .lg-row')].map(r=>({name:r.querySelector('.lg-name').value.trim(),logo:r.querySelector('.lg-logo').value.trim(),link:r.querySelector('.lg-link').value.trim(),featured:r.querySelector('.lg-feat').checked,order:+r.querySelector('.lg-order').value||0})).filter(p=>p.logo||p.name);saveSettings(s);toast('lgSaved');renderPartnerItems();});
 
 /* 지점설정 (지점별 소셜 포함) */
 function renderBranches(){const s=loadSettings();

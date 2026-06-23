@@ -30,11 +30,13 @@ create table if not exists public.site_info (
   est_year text default '',
   copyright_year text default '',
   gallery_json text default '[]',
-  partners_json text default '[]'
+  partners_json text default '[]',
+  galleryfolders_json text default '[]'
 );
--- 기존 site_info에 갤러리·협업 JSON 컬럼 보강
+-- 기존 site_info에 갤러리·협업·폴더 JSON 컬럼 보강
 alter table public.site_info add column if not exists gallery_json text default '[]';
 alter table public.site_info add column if not exists partners_json text default '[]';
+alter table public.site_info add column if not exists galleryfolders_json text default '[]';
 
 -- 클래스 (지점별)
 create table if not exists public.classes (
