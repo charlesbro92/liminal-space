@@ -98,9 +98,9 @@
   .concept-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}
   .concept-figure{
     border:1px solid var(--line);position:relative;overflow:hidden;
-    background:#dcdde0;display:flex;align-items:center;justify-content:center;
+    background:#dcdde0;display:block;line-height:0;
   }
-  .concept-figure img{width:100%;height:auto;max-height:62vh;object-fit:contain;display:block}
+  .concept-figure img{width:100%;height:auto;display:block}
   .bottle{
     width:36%;aspect-ratio:1/2.2;border-radius:10px 10px 6px 6px;
     background:linear-gradient(100deg,rgba(255,255,255,.55),rgba(255,255,255,.12) 40%,rgba(255,255,255,.5));
