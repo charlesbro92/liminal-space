@@ -13,7 +13,7 @@
 
 /* ---------- i18n ---------- */
 const I18N = {
-  ko: {}, // 기본값은 HTML에 그대로 둠 (data-i18n 키만 매핑)
+  ko: { "ph.nat":"검색 또는 선택","ph.phone":"전화번호","ph.fb":"아이디 또는 링크","ph.ig":"아이디" }, // 기본값은 HTML에 그대로 둠 (data-i18n 키만 매핑) + placeholder(ph.*)
   en: {
     "nav.concept":"Brand","nav.home":"About","nav.space":"Space","nav.classes":"Classes","nav.apply":"Apply","nav.gallery":"Gallery","nav.location":"Location","nav.contact":"Apply · Contact","space.title":"The Space","space.more":"More about the space →","contact.title":"Contact","contact.note":"Inquiries for classes, companies/groups and collaborations are welcome.",
     "cta.lead":"Complete your own scent, together with a scent designer.","cta.sub":"A premium perfume workshop where you smell 100+ notes, blend, and take home your own bottle.","cta.btn":"Book a class",
@@ -45,6 +45,7 @@ const I18N = {
     "proc.philosophy":"LIMINAL SPACE is not a DIY where you simply mix scents. We interpret how fragrance interacts with people, personality, weather and circumstance, running the workshop so you can create the scent you truly want.",
     "proc.close":"Make a special memory in the one-of-a-kind space that is LIMINAL SPACE.",
     "form.name":"Name","form.phone":"Phone","form.email":"Email","form.class":"Class","form.date":"Preferred date","form.people":"People","form.msg":"Message (optional)","form.nationality":"Nationality","form.fb":"Facebook (optional)","form.ig":"Instagram (optional)",
+    "ph.nat":"Search or select","ph.phone":"Phone number","ph.fb":"ID or link","ph.ig":"ID / handle",
     "modal.confirmlabel":"CONFIRM","modal.confirmq":"Please review your details.","modal.confirmnote":"If any information is incorrect, your application may not be processed properly. Please double-check your details before tapping Confirm & apply.",
     "modal.sub":"Class application · 5 steps","modal.step1":"STEP 1 / 5","modal.q0":"Please choose a branch to visit.",
     "modal.step2":"STEP 2 / 5","modal.q1":"Which program would you like?",
@@ -63,10 +64,10 @@ const I18N = {
     "hero.tag1":"Completely new experience","hero.tag2":"Eau de Parfum",
     "hero.cta":"Đăng ký lớp học","hero.cta2":"Xem lớp học",
     "concept.title":"Mùi hương bắt đầu từ ngưỡng cửa",
-    "concept.pa.t":"Hơn 100 loại hương","concept.pa.d":"Tự tay ngửi và khám phá gu hương bạn chưa từng biết.",
+    "concept.pa.t":"Hơn 100 loại hương","concept.pa.d":"Tự mình ngửi và khám phá mùi hương bạn chưa từng biết.",
     "concept.pb.t":"1:1 cùng Scent Designer","concept.pb.d":"Khoảng thời gian sâu lắng diễn đạt cảm giác và cảm xúc thành ngôn từ.",
     "concept.pc.t":"Mùi hương độc nhất","concept.pc.d":"Đặt tên và hoàn thiện thành dấu ấn của riêng bạn.",
-    "m.lead":"Chúng ta đều trải qua những khoảnh khắc không hoàn toàn thuộc về đâu cả. Một không gian xa lạ, một quãng thời gian trống rỗng, một cảm xúc không thể gọi tên. Bắt nguồn từ tiếng Latin 'limen' — ngưỡng cửa, LIMINAL SPACE là khoảnh khắc chuyển tiếp chưa được định nghĩa bởi bất kỳ trạng thái nào. Chúng tôi ghi lại khe hở vô hình ấy bằng mùi hương.",
+    "m.lead":"Chúng ta đều trải qua những khoảnh khắc không hoàn toàn thuộc về đâu cả. Một không gian xa lạ, một không gian trống rỗng, một cảm xúc không thể gọi tên. Bắt nguồn từ tiếng Latin 'limen' — ngưỡng cửa, LIMINAL SPACE là khoảnh khắc chuyển tiếp chưa được định nghĩa bởi bất kỳ trạng thái nào. Chúng tôi ghi lại khe hở vô hình ấy bằng mùi hương.",
     "m.p1":"Mùi hương không chỉ là một thứ thơm tho. Đó là giác quan nguyên thủy nhất gợi lại ký ức, lưu lại cảm xúc và lưu giữ trạng thái. Bầu không khí của một nơi từng khiến lòng ta bình yên, hơi ấm của ký ức chia sẻ cùng người thương, những cảm xúc còn nán lại mà chưa thể gọi tên. Chúng tôi tập trung vào thời gian và không gian được tạo nên từ hương, hơn cả bản thân mùi hương.",
     "m.p2":"Tại đây, bạn ngửi hơn 100 loại hương để khám phá gu của chính mình, gọi lại khoảnh khắc quá khứ để định nghĩa cảm xúc hiện tại, và hoàn thiện trạng thái chưa tên bằng mùi hương. Đây không chỉ là DIY chọn hương. Cùng Scent Designer diễn đạt cảm giác và cảm xúc thành ngôn từ, khám phá gu bạn chưa từng biết và hoàn thiện chai nước hoa độc nhất — đó chính là LIMINAL SPACE.",
     "m.p3":"Đây là trải nghiệm lần đầu tiên có mặt tại Việt Nam. Đã có những nơi để ngửi, chọn và làm hương, nhưng chưa từng có trải nghiệm khám phá vì sao bạn bị cuốn hút bởi mùi hương ấy, và bạn là ai. Một ngày thú vị, không hề khó, nhưng khi kết thúc chắc chắn bạn sẽ cảm nhận điều gì đó đã khác. Bắt đầu từ một không gian trống rỗng và chưa định nghĩa, khi rời khỏi đây bạn tạo nên mùi hương do chính mình định nghĩa — như nơi vốn là khoảng không trở thành không gian độc nhất được lấp đầy bằng giác quan của bạn.",
@@ -95,6 +96,7 @@ const I18N = {
     "proc.philosophy":"LIMINAL SPACE không phải là DIY chỉ trộn hương. Chúng tôi diễn giải mối quan hệ giữa hương thơm với con người, tính cách, thời tiết và hoàn cảnh, tổ chức workshop để bạn tạo nên mùi hương mình thực sự mong muốn.",
     "proc.close":"Hãy tạo nên kỷ niệm đặc biệt trong không gian độc nhất của LIMINAL SPACE.",
     "form.name":"Họ tên","form.phone":"Số điện thoại","form.email":"Email","form.class":"Lớp học","form.date":"Ngày mong muốn","form.people":"Số người","form.msg":"Lời nhắn (tùy chọn)","form.nationality":"Quốc tịch","form.fb":"Facebook (tùy chọn)","form.ig":"Instagram (tùy chọn)",
+    "ph.nat":"Tìm hoặc chọn","ph.phone":"Số điện thoại","ph.fb":"ID hoặc liên kết","ph.ig":"ID",
     "modal.confirmlabel":"XÁC NHẬN","modal.confirmq":"Vui lòng kiểm tra thông tin của bạn.","modal.confirmnote":"Nếu thông tin nhập sai, đăng ký có thể không được tiếp nhận đúng cách. Vui lòng kiểm tra lại thông tin trước khi nhấn Hoàn tất đăng ký.",
     "form.opt1":"Pha chế Signature","form.opt2":"Cặp đôi · Nhóm","form.opt3":"Atelier nâng cao",
     "form.submit":"Gửi đăng ký","form.note":"* Đây là bản nháp. Việc gửi thực sẽ hoạt động sau khi tích hợp.","form.ok":"Đã nhận đăng ký. Chúng tôi sẽ liên hệ với bạn.",
@@ -125,6 +127,11 @@ function setLang(lang){
     const k = el.getAttribute('data-i18n');
     const t = (I18N[lang] && I18N[lang][k]!==undefined) ? I18N[lang][k] : I18N.ko[k];  // 없으면 한국어 폴백
     if(t!==undefined) el.innerHTML = t;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{   // placeholder 다국어
+    const k = el.getAttribute('data-i18n-ph');
+    const t = (I18N[lang] && I18N[lang][k]!==undefined) ? I18N[lang][k] : I18N.ko[k];
+    if(t!=null) el.setAttribute('placeholder', t);
   });
   document.querySelectorAll('.lang button').forEach(b=>{
     b.classList.toggle('active', b.dataset.lang===lang);
