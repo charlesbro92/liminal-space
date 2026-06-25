@@ -52,6 +52,8 @@
   .l2-table td.nowrap{white-space:nowrap}
   .l2-table td.memo{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .l2-empty{text-align:center;color:var(--ink-soft);padding:40px 0!important}
+  .l2-table .l2-ck{width:36px;text-align:center}
+  .l2-table .l2-ck input{cursor:pointer;width:15px;height:15px}
   .cal{background:var(--paper);border:1px solid var(--line)}
   .cal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}.cal-head .m{font-weight:700;font-size:15px}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
@@ -214,6 +216,9 @@
           <input id="l2Search" class="l2-search" placeholder="이름 또는 전화번호 검색..." />
           <select id="l2Status"><option value="">전체 상태</option><option value="new">신규</option><option value="confirmed">확정</option><option value="done">완료</option><option value="cancel">취소</option></select>
           <select id="l2Branch"><option value="">전체 지점</option></select>
+          <span id="l2Sel" class="l2-count"></span>
+          <select id="l2Bulk"><option value="">상태 변경…</option><option value="new">신규</option><option value="confirmed">확정</option><option value="done">완료</option><option value="cancel">취소</option></select>
+          <button class="btn sm" id="l2Apply">선택 상태변경</button>
           <div class="spacer"></div>
           <span id="l2Count" class="l2-count"></span>
           <button class="btn ghost" id="l2Export">CSV 내보내기</button>
@@ -531,8 +536,8 @@ function exportCSV(list){if(!list||!list.length){alert('내보낼 신청이 없�
   const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liminal_applications_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
 document.getElementById('exportBtn').addEventListener('click',()=>exportCSV(load()));
 
-/* ===== 신청관리 2 (행 목록형 대시보드) ===== */
-let l2Bound=false;
+/* ===== 신청관리(리스트) (행 목록형 대시보드) ===== */
+let l2Bound=false;let l2Sel=new Set();
 function l2Filtered(){
   const q=(document.getElementById('l2Search').value||'').trim().toLowerCase();
   const st=document.getElementById('l2Status').value;
@@ -544,6 +549,16 @@ function l2Filtered(){
     return true;
   }).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
 }
+function l2UpdateSelCount(){const el=document.getElementById('l2Sel');if(el)el.textContent=l2Sel.size?l2Sel.size+'건 선택':'';}
+function l2ApplyBulk(){
+  const target=document.getElementById('l2Bulk').value;
+  if(!l2Sel.size){alert('변경할 신청을 먼저 체크하세요.');return;}
+  if(!target){alert('변경할 상태를 선택하세요.');return;}
+  if(!confirm(l2Sel.size+'건을 "'+(STATUS[target]||{}).label+'" 상태로 변경할까요?'))return;
+  const l=load();l.forEach(a=>{if(l2Sel.has(a.id))a.status=target;});save(l);
+  l2Sel=new Set();document.getElementById('l2Bulk').value='';
+  renderList2();renderOverview();
+}
 function renderList2(){
   const bsel=document.getElementById('l2Branch');const curB=bsel.value;
   bsel.innerHTML='<option value="">전체 지점</option>'+branchNames().map(n=>`<option value="${esc(n)}" ${n===curB?'selected':''}>${esc(brLabelAdm(n))}</option>`).join('');
@@ -552,33 +567,40 @@ function renderList2(){
     document.getElementById('l2Status').addEventListener('change',renderList2);
     document.getElementById('l2Branch').addEventListener('change',renderList2);
     document.getElementById('l2Export').addEventListener('click',()=>exportCSV(l2Filtered()));
+    document.getElementById('l2Apply').addEventListener('click',l2ApplyBulk);
   }
   const all=load();const c={total:all.length,new:0,confirmed:0,done:0,cancel:0};
   all.forEach(x=>{if(c[x.status]!==undefined)c[x.status]++;});
   document.getElementById('l2Stats').innerHTML=[['전체',c.total],['신규',c.new],['확정',c.confirmed],['완료',c.done],['취소',c.cancel]].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join('');
   const rows=l2Filtered();
   document.getElementById('l2Count').textContent='총 '+rows.length+'명';
-  const cols=['신청일시','이름','연락처','상태','지점','클래스','용량','희망일','시간','인원','국적','메모','작업'];
-  document.getElementById('l2Head').innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  const cols=['희망일','시간','이름','연락처','지점','클래스','용량','인원','국적','메모','신청일시','상태','작업'];
+  document.getElementById('l2Head').innerHTML='<tr><th class="l2-ck"><input type="checkbox" id="l2All"></th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
   document.getElementById('l2Body').innerHTML = rows.length ? rows.map(a=>{
     const st=STATUS[a.status]||STATUS.new;const msg=a.msg||'';
     return `<tr>
-      <td class="mono nowrap">${esc(fmt(a.createdAt))}</td>
+      <td class="l2-ck"><input type="checkbox" class="l2-row" value="${a.id}" ${l2Sel.has(a.id)?'checked':''}></td>
+      <td class="mono nowrap">${esc(a.date)||'-'}</td>
+      <td class="mono nowrap">${esc(a.time)||'-'}</td>
       <td class="strong">${esc(a.name)||'-'}</td>
       <td class="mono nowrap">${esc(a.phone)||'-'}</td>
-      <td><span class="badge ${st.cls}">${st.label}</span></td>
       <td class="nowrap">${esc(brLabelAdm(a.branch))||'-'}</td>
       <td>${esc(a.class?clsLabelAdm(a.branch,a.class):'-')}</td>
       <td class="nowrap">${esc(a.size)||'-'}</td>
-      <td class="mono nowrap">${esc(a.date)||'-'}</td>
-      <td class="mono nowrap">${esc(a.time)||'-'}</td>
       <td class="mono">${esc(a.people)||'1'}</td>
       <td class="nowrap">${esc(a.nationality)||'-'}</td>
       <td class="memo" title="${esc(msg)}">${esc(msg.slice(0,24))}${msg.length>24?'…':''}</td>
+      <td class="mono nowrap">${esc(fmt(a.createdAt))}</td>
+      <td><span class="badge ${st.cls}">${st.label}</span></td>
       <td><button class="btn sm l2-detail" data-id="${a.id}">상세</button></td>
     </tr>`;
-  }).join('') : `<tr><td colspan="${cols.length}" class="l2-empty">신청 내역이 없습니다.</td></tr>`;
+  }).join('') : `<tr><td colspan="${cols.length+1}" class="l2-empty">신청 내역이 없습니다.</td></tr>`;
   document.querySelectorAll('#l2Body .l2-detail').forEach(b=>b.addEventListener('click',()=>openDetail(+b.dataset.id)));
+  document.querySelectorAll('#l2Body .l2-row').forEach(cb=>cb.addEventListener('change',()=>{const id=+cb.value;if(cb.checked)l2Sel.add(id);else l2Sel.delete(id);const allcb=document.getElementById('l2All');if(allcb)allcb.checked=[...document.querySelectorAll('#l2Body .l2-row')].every(x=>x.checked);l2UpdateSelCount();}));
+  const allcb=document.getElementById('l2All');
+  if(allcb){allcb.checked=rows.length>0&&rows.every(a=>l2Sel.has(a.id));
+    allcb.addEventListener('change',()=>{document.querySelectorAll('#l2Body .l2-row').forEach(cb=>{cb.checked=allcb.checked;const id=+cb.value;if(allcb.checked)l2Sel.add(id);else l2Sel.delete(id);});l2UpdateSelCount();});}
+  l2UpdateSelCount();
 }
 
 /* ===== BOOKING (지점별) ===== */
