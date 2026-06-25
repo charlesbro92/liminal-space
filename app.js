@@ -173,7 +173,7 @@ const STORE_KEY='liminal_applications';
 const SET_KEY='liminal_settings';
 const DEFAULT_DAY=[{cls:'',time:'11:00',cap:6},{cls:'',time:'14:00',cap:6},{cls:'',time:'17:00',cap:6}];
 /* 다국어 helper */
-function curLang(){return document.documentElement.lang||'ko';}
+function curLang(){return document.documentElement.lang||'vi';}
 function txObj(v){return (v&&typeof v==='object'&&!Array.isArray(v))?v:(v?{ko:String(v)}:{});}
 function Lval(v,lang){const o=txObj(v);return o[lang||curLang()]||o.ko||o.en||o.vi||'';}
 function keyOf(v){const o=txObj(v);return o.ko||o.en||o.vi||'';}
@@ -880,4 +880,5 @@ function initEffects(){
   }
 }
 initEffects();
+setLang('vi');   // 기본 언어: 베트남어 (모든 정의 이후 호출 — TDZ 회피)
 
