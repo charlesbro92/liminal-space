@@ -31,7 +31,8 @@
         location:tri(b.location_ko,b.location_en,b.location_vi), hours:tri(b.hours_ko,b.hours_en,b.hours_vi),
         instagram:b.instagram||'', facebook:b.facebook||'', linktree:b.linktree||'' });
     });
-    var si=(t.site_info||[])[0]; if(si){ settings.site={ brandName:si.brand_name||'', estYear:si.est_year||'', copyrightYear:si.copyright_year||'' };
+    var si=(t.site_info||[])[0]; if(si){ settings.site={ brandName:si.brand_name||'', estYear:si.est_year||'', copyrightYear:si.copyright_year||'',
+        bizName:si.biz_name||'', bizAddress:si.biz_address||'', bizTax:si.biz_tax||'', bizPhone:si.biz_phone||'', bizEmail:si.biz_email||'', moitUrl:si.moit_url||'', moitLogo:si.moit_logo||'' };
       try{ settings.gallery=JSON.parse(si.gallery_json||'[]')||[]; }catch(e){ settings.gallery=[]; }
       try{ settings.partners=JSON.parse(si.partners_json||'[]')||[]; }catch(e){ settings.partners=[]; }
       try{ settings.galleryFolders=JSON.parse(si.galleryfolders_json||'[]')||[]; }catch(e){ settings.galleryFolders=[]; }
@@ -81,7 +82,9 @@
         location_ko:ko(b.location), location_en:en(b.location), location_vi:vi(b.location),
         hours_ko:ko(b.hours), hours_en:en(b.hours), hours_vi:vi(b.hours),
         instagram:b.instagram||'', facebook:b.facebook||'', linktree:b.linktree||'', sort:i }; });
-    var siteRow={ id:'main', brand_name:(s.site&&s.site.brandName)||'', est_year:(s.site&&s.site.estYear)||'', copyright_year:(s.site&&s.site.copyrightYear)||'',
+    var _si=s.site||{};
+    var siteRow={ id:'main', brand_name:_si.brandName||'', est_year:_si.estYear||'', copyright_year:_si.copyrightYear||'',
+      biz_name:_si.bizName||'', biz_address:_si.bizAddress||'', biz_tax:_si.bizTax||'', biz_phone:_si.bizPhone||'', biz_email:_si.bizEmail||'', moit_url:_si.moitUrl||'', moit_logo:_si.moitLogo||'',
       gallery_json:JSON.stringify(s.gallery||[]), partners_json:JSON.stringify(s.partners||[]), galleryfolders_json:JSON.stringify(s.galleryFolders||[]),
       space_json:JSON.stringify(s.space||[]), spacefolders_json:JSON.stringify(s.spaceFolders||[]) };
     var classRows=(s.branchClasses||[]).map(function(c,i){ var k=classKey(c.branch,ko(c.name)); var id=classIdByKey[k]||rid('cl'); clKeyToId[k]=id;

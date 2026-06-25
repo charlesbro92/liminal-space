@@ -227,6 +227,14 @@
             <div class="field-row"><label>브랜드명</label><input id="inBrand" placeholder="LIMINAL SPACE" /></div>
             <div class="field-row" style="max-width:240px"><label>EST 연도</label><input id="inEst" placeholder="2026" /></div>
             <div class="field-row" style="max-width:240px"><label>© 저작권 연도</label><input id="inCopy" placeholder="2026" /></div>
+            <h3 style="margin-top:22px">사업자 정보 (베트남 푸터)</h3><p class="desc">베트남 전자상거래법(Decree 52/2013·85/2021)에 따라 푸터에 표시됩니다. 비워두면 해당 줄은 표시되지 않습니다.</p>
+            <div class="field-row"><label>상호 (Tên)</label><input id="inBizName" placeholder="예: ONE DAY ECO Co., Ltd / Hộ kinh doanh ..." /></div>
+            <div class="field-row"><label>주소 (Địa chỉ)</label><input id="inBizAddr" placeholder="등록 주소" /></div>
+            <div class="field-row" style="max-width:300px"><label>세금코드 (MST)</label><input id="inBizTax" placeholder="Mã số thuế / 사업자번호" /></div>
+            <div class="field-row" style="max-width:300px"><label>전화 (Điện thoại)</label><input id="inBizPhone" placeholder="+84 ..." /></div>
+            <div class="field-row" style="max-width:300px"><label>이메일 (Email)</label><input id="inBizEmail" placeholder="hello@..." /></div>
+            <div class="field-row"><label>Bộ Công Thương 인증 링크</label><input id="inMoitUrl" placeholder="online.gov.vn 신고 완료 후 받는 인증 URL" /></div>
+            <div class="field-row"><label>신고 로고 이미지 URL</label><input id="inMoitLogo" placeholder="(선택) 파란 'đã thông báo' 로고 이미지 URL — 비우면 텍스트 뱃지" /></div>
             <div class="save-row"><button class="btn sm" id="siteSave">저장</button><span class="saved" id="siteSaved">저장됨 ✓</span></div>
           </div>
         </div>
@@ -653,8 +661,15 @@ function renderBranches(){const s=loadSettings();
   document.getElementById('inBrand').value=(s.site&&s.site.brandName)||'';
   document.getElementById('inEst').value=(s.site&&s.site.estYear)||'';
   document.getElementById('inCopy').value=(s.site&&s.site.copyrightYear)||'';
+  document.getElementById('inBizName').value=(s.site&&s.site.bizName)||'';
+  document.getElementById('inBizAddr').value=(s.site&&s.site.bizAddress)||'';
+  document.getElementById('inBizTax').value=(s.site&&s.site.bizTax)||'';
+  document.getElementById('inBizPhone').value=(s.site&&s.site.bizPhone)||'';
+  document.getElementById('inBizEmail').value=(s.site&&s.site.bizEmail)||'';
+  document.getElementById('inMoitUrl').value=(s.site&&s.site.moitUrl)||'';
+  document.getElementById('inMoitLogo').value=(s.site&&s.site.moitLogo)||'';
 }
-document.getElementById('siteSave').addEventListener('click',()=>{const s=loadSettings();s.site={brandName:document.getElementById('inBrand').value.trim(),estYear:document.getElementById('inEst').value.trim(),copyrightYear:document.getElementById('inCopy').value.trim()};saveSettings(s);toast('siteSaved');});
+document.getElementById('siteSave').addEventListener('click',()=>{const s=loadSettings();s.site={brandName:document.getElementById('inBrand').value.trim(),estYear:document.getElementById('inEst').value.trim(),copyrightYear:document.getElementById('inCopy').value.trim(),bizName:document.getElementById('inBizName').value.trim(),bizAddress:document.getElementById('inBizAddr').value.trim(),bizTax:document.getElementById('inBizTax').value.trim(),bizPhone:document.getElementById('inBizPhone').value.trim(),bizEmail:document.getElementById('inBizEmail').value.trim(),moitUrl:document.getElementById('inMoitUrl').value.trim(),moitLogo:document.getElementById('inMoitLogo').value.trim()};saveSettings(s);toast('siteSaved');});
 document.getElementById('brAdd').addEventListener('click',()=>{const s=loadSettings();s.branches.push({id:Date.now(),name:'',contact:'',link:'',location:'',instagram:'',facebook:''});saveSettings(s);renderSettings();});
 document.getElementById('brSave').addEventListener('click',()=>{
   const s=loadSettings();

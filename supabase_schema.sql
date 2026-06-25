@@ -40,6 +40,14 @@ alter table public.site_info add column if not exists partners_json text default
 alter table public.site_info add column if not exists galleryfolders_json text default '[]';
 alter table public.site_info add column if not exists space_json text default '[]';
 alter table public.site_info add column if not exists spacefolders_json text default '[]';
+-- 베트남 전자상거래(Decree 52/2013·85/2021) 푸터 표시용 사업자 정보 + Bộ Công Thương 신고 뱃지
+alter table public.site_info add column if not exists biz_name text default '';
+alter table public.site_info add column if not exists biz_address text default '';
+alter table public.site_info add column if not exists biz_tax text default '';
+alter table public.site_info add column if not exists biz_phone text default '';
+alter table public.site_info add column if not exists biz_email text default '';
+alter table public.site_info add column if not exists moit_url text default '';
+alter table public.site_info add column if not exists moit_logo text default '';
 
 -- 클래스 (지점별)
 create table if not exists public.classes (

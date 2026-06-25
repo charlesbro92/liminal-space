@@ -399,3 +399,16 @@ section[id], footer[id]{scroll-margin-top:63px}  /* 고정 네비 높이에 딱 
 /* 지점 1곳: 호버 없이 아이콘 항상 노출 */
 .socials.show-all .soc-icons{max-width:none;opacity:1;margin-left:9px}
 .socials.show-all .soc-b{color:var(--ink)}
+
+/* ===== 푸터 사업자 정보(베트남 전자상거래법) + 신고 뱃지 ===== */
+.foot-biz{max-width:var(--maxw,1280px);margin:26px auto 0;padding:18px 32px 0;border-top:1px solid rgba(255,255,255,.12);
+  text-align:center;color:rgba(255,255,255,.5);font-size:12px;line-height:1.7;letter-spacing:.01em}
+.foot-biz .fb-line{margin:1px 0}
+.foot-biz .fb-i b{font-weight:600;color:rgba(255,255,255,.62);margin-right:4px;font-size:11px}
+.foot-biz .fb-sep{margin:0 8px;opacity:.4}
+.foot-biz .fb-badge{display:inline-flex;align-items:center;margin-top:12px}
+.foot-biz .fb-badge img{height:34px;width:auto;display:block}
+.foot-biz .fb-badge-txt{display:inline-block;border:1px solid rgba(120,170,255,.5);color:rgba(150,190,255,.85);
+  border-radius:6px;padding:5px 12px;font-size:11px;letter-spacing:.02em}
+.foot-biz .fb-badge:hover .fb-badge-txt{border-color:rgba(120,170,255,.85);color:#cfe0ff}
+@media(max-width:680px){.foot-biz{padding:16px 18px 0}.foot-biz .fb-sep{margin:0 5px}}

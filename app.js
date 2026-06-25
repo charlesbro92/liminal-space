@@ -141,6 +141,7 @@ function setLang(lang){
   if(typeof renderSpaceFolderChips==='function') renderSpaceFolderChips(); // 공간 폴더 칩 언어 재적용
   if(typeof initSpaceCarousel==='function') initSpaceCarousel();   // 공간 마퀴 캡션 언어 재적용
   if(typeof renderSpaceGrid==='function') renderSpaceGrid();       // 공간 그리드(space.html) 캡션 언어 재적용
+  if(typeof renderSiteInfo==='function') renderSiteInfo();         // 푸터 사업자정보 라벨 언어 재적용
   if(typeof renderNavSocials==='function') renderNavSocials();     // 네비 지점 라벨 언어 재적용
 }
 document.querySelectorAll('.lang button').forEach(b=>{
@@ -324,6 +325,29 @@ function renderSiteInfo(){
   var e=document.getElementById('estYear'); if(e&&est) e.textContent='EST. '+est;
   var fb=document.getElementById('footBrand'); if(fb) fb.textContent=brand+' — PERFUME WORKSHOP';
   var fc=document.getElementById('footCopy'); if(fc) fc.textContent='© '+(copy||est||'')+' '+brand;
+  renderFootBiz(si);
+}
+/* 베트남 전자상거래법 푸터 사업자 정보 + Bộ Công Thương 신고 뱃지 (전 페이지 공통, app.js가 주입) */
+function renderFootBiz(si){
+  var foot=document.getElementById('contact'); if(!foot)return;
+  si=si||{};
+  var L=curLang();
+  var lab=L==='en'?{name:'Company',addr:'Address',tax:'Tax code',tel:'Tel',email:'Email'}
+        :L==='vi'?{name:'Tên',addr:'Địa chỉ',tax:'MST',tel:'ĐT',email:'Email'}
+        :{name:'상호',addr:'주소',tax:'세금코드',tel:'전화',email:'이메일'};
+  function pair(k,v){return v?('<span class="fb-i"><b>'+lab[k]+'</b> '+esc(v)+'</span>'):'';}
+  var line1=[pair('name',si.bizName),pair('addr',si.bizAddress)].filter(Boolean).join('<span class="fb-sep">·</span>');
+  var line2=[pair('tax',si.bizTax),pair('tel',si.bizPhone),pair('email',si.bizEmail)].filter(Boolean).join('<span class="fb-sep">·</span>');
+  var badge='';
+  if(si.moitUrl){
+    var inner=si.moitLogo?('<img src="'+esc(si.moitLogo)+'" alt="Đã thông báo Bộ Công Thương" />')
+      :'<span class="fb-badge-txt">Đã thông báo Bộ Công Thương</span>';
+    badge='<a class="fb-badge" href="'+esc(si.moitUrl)+'" target="_blank" rel="noopener">'+inner+'</a>';
+  }
+  var box=document.getElementById('footBiz');
+  if(!line1&&!line2&&!badge){ if(box)box.parentNode.removeChild(box); return; }
+  if(!box){ box=document.createElement('div'); box.id='footBiz'; box.className='foot-biz'; foot.appendChild(box); }
+  box.innerHTML=(line1?'<div class="fb-line">'+line1+'</div>':'')+(line2?'<div class="fb-line">'+line2+'</div>':'')+badge;
 }
 /* 위치 섹션을 지점설정과 연동 */
 function renderLocation(){
