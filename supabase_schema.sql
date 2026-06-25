@@ -127,6 +127,9 @@ create index if not exists applications_date_idx on public.applications(want_dat
 -- 기존 applications에 SNS 컬럼 보강
 alter table public.applications add column if not exists sns_facebook text default '';
 alter table public.applications add column if not exists sns_instagram text default '';
+-- 결제(예정)금액 + 예약금(예약금 로직은 추후 — 컬럼만 미리 둠)
+alter table public.applications add column if not exists amount text default '';
+alter table public.applications add column if not exists deposit text default '';
 create index if not exists applications_branch_idx on public.applications(branch_id);
 
 -- RLS (공개 데모/간단 비밀번호 모드: anon 읽기·쓰기 허용)

@@ -228,6 +228,9 @@ function effPriceNum(d){const di=discInfo(d);if(!di)return priceNum(priceDisplay
 /* 가격 HTML (할인 시 정가 취소선 + 할인가 + 배지) */
 function priceHTML(d){const di=discInfo(d);if(!di)return esc(priceDisplay(d));if(di.final==null)return esc(di.origStr);return `<span class="price-old">${esc(di.origStr)}</span><span class="price-new">${esc(di.finalStr)}</span><span class="disc-badge">${esc(di.label)}</span>`;}
 function needsSize(){return volumesForName(data.branch,data.class).length>0;}
+/* 선택한 용량의 상세(가격) + 결제 예정 금액(실효가 × 인원) */
+function selectedDetail(){var vols=volumesForName(data.branch,data.class);if(!vols.length)return null;var sz=String(data.size||'').replace('ml','').trim();return vols.filter(function(d){return String(d.volume)===sz;})[0]||null;}
+function expectedAmountStr(){var d=selectedDetail();if(!d)return '';var di=discInfo(d);if(!di)return '';var unit=(di.final!=null?di.final:di.orig);if(!isFinite(unit)||unit<=0)return '';var ppl=parseInt(data.people||'1',10)||1;return (unit*ppl).toLocaleString('en-US')+di.sym;}
 function slotsFor(dateStr){
   if(!dateStr||!data.branch) return [];
   const s=getSettings();const sc=(s.schedule||{})[data.branch]||{};
@@ -695,9 +698,9 @@ function validate(n){
 }
 function renderConfirm(){
   const lang=curLang();
-  const L = lang==='en'?{branch:'Branch',class:'Class',size:'Volume',date:'Date',time:'Time',people:'People',name:'Name',phone:'Phone',email:'Email',nat:'Nationality',fb:'Facebook',ig:'Instagram',msg:'Note'}
-    : lang==='vi'?{branch:'Chi nhánh',class:'Lớp',size:'Dung tích',date:'Ngày',time:'Giờ',people:'Số người',name:'Họ tên',phone:'SĐT',email:'Email',nat:'Quốc tịch',fb:'Facebook',ig:'Instagram',msg:'Ghi chú'}
-    : {branch:'지점',class:'클래스',size:'용량',date:'날짜',time:'시간',people:'인원',name:'이름',phone:'연락처',email:'이메일',nat:'국적',fb:'Facebook',ig:'Instagram',msg:'메모'};
+  const L = lang==='en'?{branch:'Branch',class:'Class',size:'Volume',date:'Date',time:'Time',people:'People',amount:'Estimated payment',name:'Name',phone:'Phone',email:'Email',nat:'Nationality',fb:'Facebook',ig:'Instagram',msg:'Note'}
+    : lang==='vi'?{branch:'Chi nhánh',class:'Lớp',size:'Dung tích',date:'Ngày',time:'Giờ',people:'Số người',amount:'Số tiền dự kiến',name:'Họ tên',phone:'SĐT',email:'Email',nat:'Quốc tịch',fb:'Facebook',ig:'Instagram',msg:'Ghi chú'}
+    : {branch:'지점',class:'클래스',size:'용량',date:'날짜',time:'시간',people:'인원',amount:'결제 예정 금액',name:'이름',phone:'연락처',email:'이메일',nat:'국적',fb:'Facebook',ig:'Instagram',msg:'메모'};
   const cObj=branchClassesOf(data.branch).find(c=>keyOf(c.name)===data.class);
   const clsDisp=cObj?Lval(cObj.name,lang):data.class;
   const inq=isInquiry();
@@ -705,6 +708,7 @@ function renderConfirm(){
   if(data.size && !inq) rows.push(['size',data.size]);
   rows.push(['date',data.date||'-']);
   if(!inq) rows.push(['time',data.time||'-'],['people',(data.people||'1')+(lang==='ko'?'명':'')]);
+  if(!inq){var _amt=expectedAmountStr();if(_amt)rows.push(['amount',_amt]);}
   rows.push(['name',data.name],['phone',(data.dialcode?data.dialcode+' ':'')+data.phone],['email',data.email],['nat',data.nationality]);
   if(data.facebook) rows.push(['fb',data.facebook]);
   if(data.instagram) rows.push(['ig',data.instagram]);
@@ -717,6 +721,7 @@ function submitApplication(){
     branch:data.branch,name:data.name,phone:(data.dialcode?data.dialcode+' ':'')+(data.phone||''),email:data.email,nationality:data.nationality,
     facebook:data.facebook||'',instagram:data.instagram||'',class:data.class,
     size:data.size,date:data.date,time:data.time,people:data.people||'1',
+    amount:expectedAmountStr(),deposit:'',
     msg:data.msg,status:'new'};
   try{const list=(window.LS?LS.getApps():[]).slice();list.push(entry);LS.setApps(list);}catch(err){console.warn('저장 실패',err);}
   goto(7);

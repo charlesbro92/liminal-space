@@ -37,7 +37,7 @@
   .icon-btn:hover{border-color:var(--ink)}.icon-btn:disabled{opacity:.4;cursor:not-allowed}
   .spacer{flex:1}.sec-title{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--coord);margin:30px 0 14px}
   .saved{font-size:12px;color:var(--confirmed);opacity:0;transition:opacity .2s}.saved.show{opacity:1}
-  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin-bottom:24px}
   .stat{background:var(--paper);border:1px solid var(--line);padding:18px 20px}
   .stat .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--coord)}.stat .v{font-size:30px;font-weight:700;margin-top:6px}
   /* 신청관리 2 표 */
@@ -94,6 +94,7 @@
   td .name{font-weight:600}td .sub{color:var(--ink-soft);font-size:12px}
   .badge{display:inline-block;font-size:11px;letter-spacing:.06em;padding:3px 9px;border-radius:999px;color:#fff;text-transform:uppercase}
   .b-new{background:var(--new)}.b-confirmed{background:var(--confirmed)}.b-done{background:var(--done)}.b-cancel{background:var(--cancel)}
+  .b-refund{background:#8b5cf6}.b-refunddep{background:#b08968}
   .empty{padding:50px 20px;text-align:center;color:var(--ink-soft)}.msg-cell{max-width:200px;color:var(--ink-soft);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .chk{width:16px;height:16px;cursor:pointer}
   .am-group{border:1px solid var(--line);margin-bottom:12px}
@@ -362,6 +363,7 @@
     <div class="df"><label>시간</label><select id="d_time"></select></div>
     <div class="df"><label>인원</label><input type="number" min="1" id="d_people" /></div>
     <div class="df"><label>상태</label><select id="d_status"></select></div>
+    <div class="df"><label>결제금액</label><input id="d_amount" placeholder="예: 150,000₫" /></div>
     <div class="df full"><label>메모</label><textarea id="d_msg" rows="3"></textarea></div>
   </div></div>
   <div class="dfoot"><button class="btn danger sm" id="dDelete">삭제</button><span class="spacer"></span><button class="btn ghost sm" id="dCancel">닫기</button><button class="btn sm" id="dSave">저장</button></div>
@@ -387,7 +389,7 @@
 const STORE_KEY='liminal_applications';
 const SET_KEY='liminal_settings';
 const PW='liminal';
-const STATUS={new:{label:'신규',cls:'b-new'},confirmed:{label:'확정',cls:'b-confirmed'},done:{label:'완료',cls:'b-done'},cancel:{label:'취소',cls:'b-cancel'}};
+const STATUS={new:{label:'신규',cls:'b-new'},confirmed:{label:'확정',cls:'b-confirmed'},done:{label:'완료',cls:'b-done'},cancel:{label:'취소',cls:'b-cancel'},refund:{label:'환불',cls:'b-refund'},refund_deposit:{label:'환불(예)',cls:'b-refunddep'}};
 const DOW=['일','월','화','수','목','금','토'];
 const DAYKEYS=['sun','mon','tue','wed','thu','fri','sat'];
 function defaultDaySlots(){return [{cls:'',time:'11:00',cap:6},{cls:'',time:'14:00',cap:6},{cls:'',time:'17:00',cap:6}];}
@@ -429,6 +431,12 @@ function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'
 function fmt(iso){const d=new Date(iso);if(isNaN(d))return iso||'-';const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function toast(id){const e=document.getElementById(id);if(!e)return;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1600);}
+/* KPI 카드: 전체 + 상태별(STATUS 순) */
+function statsCardsHTML(list){const c={};Object.keys(STATUS).forEach(k=>c[k]=0);list.forEach(x=>{if(c[x.status]!==undefined)c[x.status]++;});
+  const cards=[['전체',list.length]].concat(Object.keys(STATUS).map(k=>[STATUS[k].label,c[k]]));
+  return cards.map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join('');}
+/* 상태 필터 옵션(전체 + STATUS) */
+function statusOptsHTML(){return '<option value="">전체 상태</option>'+Object.keys(STATUS).map(k=>`<option value="${k}">${STATUS[k].label}</option>`).join('');}
 
 /* ---- 지점/클래스/상세 helpers ---- */
 function branchNames(){return (loadSettings().branches||[]).map(b=>b.name).filter(Boolean);}
@@ -485,9 +493,8 @@ function bookedAt(branch,dateStr,time){return load().filter(a=>a.date===dateStr&
 /* ===== OVERVIEW ===== */
 let ovMonth=new Date();ovMonth.setDate(1);
 function renderOverview(){
-  const list=load();const c={total:list.length,new:0,confirmed:0,done:0,cancel:0};
-  list.forEach(x=>{if(c[x.status]!==undefined)c[x.status]++;});
-  document.getElementById('ovStats').innerHTML=[['전체 신청',c.total],['신규',c.new],['확정',c.confirmed],['완료',c.done],['취소',c.cancel]].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join('');
+  const list=load();
+  document.getElementById('ovStats').innerHTML=statsCardsHTML(list);
   const by=applicantsByDate('');const max=Math.max(1,...Object.values(by));
   const cal=document.getElementById('ovCal');
   cal.innerHTML=buildCalendar(ovMonth,(ds)=>{const n=by[ds]||0;const day=+ds.slice(-2);return `<span class="d">${day}</span>`+(n?`<div><span class="pill">${n}명</span></div><span class="heat" style="opacity:${(0.15+0.6*n/max).toFixed(2)}"></span>`:'');});
@@ -500,7 +507,8 @@ function breakdown(list,field){const map={};list.forEach(x=>{const k=x[field]||'
 
 /* ===== 신청관리 (캘린더 + 선택일자 클래스별 신청목록) ===== */
 let amMonth=new Date();amMonth.setDate(1);let amSelected=ymd(new Date());
-function populateFilters(){document.getElementById('amBranch').innerHTML='<option value="">전체 지점</option>'+branchNames().map(n=>`<option value="${esc(n)}">${esc(brLabelAdm(n))}</option>`).join('');}
+function populateFilters(){document.getElementById('amBranch').innerHTML='<option value="">전체 지점</option>'+branchNames().map(n=>`<option value="${esc(n)}">${esc(brLabelAdm(n))}</option>`).join('');
+  const so=statusOptsHTML();const am=document.getElementById('amStatus'),l2=document.getElementById('l2Status');if(am)am.innerHTML=so;if(l2)l2.innerHTML=so;}
 function amCountByDate(){const fb=document.getElementById('amBranch').value,fs=document.getElementById('amStatus').value;const map={};load().forEach(a=>{if(!a.date)return;if(fb&&a.branch!==fb)return;if(fs?a.status!==fs:a.status==='cancel')return;map[a.date]=(map[a.date]||0)+(parseInt(a.people)||1);});return map;}
 function amApps(dateStr){const fb=document.getElementById('amBranch').value,fs=document.getElementById('amStatus').value;return load().filter(a=>a.date===dateStr&&(!fb||a.branch===fb)&&(!fs||a.status===fs));}
 function renderList(){  // 신청관리 탭
@@ -548,8 +556,8 @@ function renderAmView(){
 }
 ['amBranch','amStatus'].forEach(id=>document.getElementById(id).addEventListener('change',renderList));
 function exportCSV(list){if(!list||!list.length){alert('내보낼 신청이 없습니다.');return;}
-  const head=['신청일시','지점','이름','연락처','이메일','국적','Facebook','Instagram','클래스','용량','희망일','희망시간','인원','메모','상태'];
-  const lines=[head.join(',')].concat(list.map(x=>[fmt(x.createdAt),x.branch||'',x.name,x.phone,x.email,x.nationality||'',x.facebook||'',x.instagram||'',x.class,x.size||'',x.date,x.time||'',x.people,(x.msg||'').replace(/\n/g,' '),(STATUS[x.status]||{}).label||x.status].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')));
+  const head=['신청일시','결제금액','지점','이름','연락처','이메일','국적','Facebook','Instagram','클래스','용량','희망일','희망시간','인원','메모','상태'];
+  const lines=[head.join(',')].concat(list.map(x=>[fmt(x.createdAt),x.amount||'',x.branch||'',x.name,x.phone,x.email,x.nationality||'',x.facebook||'',x.instagram||'',x.class,x.size||'',x.date,x.time||'',x.people,(x.msg||'').replace(/\n/g,' '),(STATUS[x.status]||{}).label||x.status].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')));
   const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liminal_applications_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
 document.getElementById('exportBtn').addEventListener('click',()=>exportCSV(load()));
 
@@ -627,13 +635,11 @@ function renderList2(){
     document.getElementById('l2mTo').addEventListener('change',l2mPreviewUpdate);
     document.getElementById('l2Modal').addEventListener('click',e=>{if(e.target.id==='l2Modal')l2CloseStatusModal();});
   }
-  const all=l2Get();const c={total:all.length,new:0,confirmed:0,done:0,cancel:0};
-  all.forEach(x=>{if(c[x.status]!==undefined)c[x.status]++;});
-  document.getElementById('l2Stats').innerHTML=[['전체',c.total],['신규',c.new],['확정',c.confirmed],['완료',c.done],['취소',c.cancel]].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join('');
+  document.getElementById('l2Stats').innerHTML=statsCardsHTML(l2Get());
   const dh=document.getElementById('l2DirtyHint'); if(dh)dh.textContent=l2Dirty?'● 미저장 변경':'';
   const rows=l2Filtered();
   document.getElementById('l2Count').textContent='총 '+rows.length+'명';
-  const cols=['희망일','시간','이름','연락처','지점','클래스','용량','인원','국적','메모','신청일시','상태','작업'];
+  const cols=['희망일','시간','이름','연락처','지점','클래스','용량','인원','국적','메모','신청일시','결제금액','상태','작업'];
   document.getElementById('l2Head').innerHTML='<tr><th class="l2-ck"><input type="checkbox" id="l2All"></th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
   document.getElementById('l2Body').innerHTML = rows.length ? rows.map(a=>{
     const st=STATUS[a.status]||STATUS.new;const msg=a.msg||'';
@@ -650,6 +656,7 @@ function renderList2(){
       <td class="nowrap">${esc(a.nationality)||'-'}</td>
       <td class="memo" title="${esc(msg)}">${esc(msg.slice(0,24))}${msg.length>24?'…':''}</td>
       <td class="mono nowrap">${esc(fmt(a.createdAt))}</td>
+      <td class="mono nowrap">${esc(a.amount)||'-'}</td>
       <td><span class="badge ${st.cls}">${st.label}</span></td>
       <td><button class="btn sm l2-detail" data-id="${a.id}">상세</button></td>
     </tr>`;
@@ -935,7 +942,7 @@ function openDetail(id){
   const a=src.find(x=>x.id===id);if(!a)return;detailId=id;
   document.getElementById('dWhen').textContent='신청일시 '+fmt(a.createdAt);
   document.getElementById('d_name').value=a.name||'';document.getElementById('d_phone').value=a.phone||'';document.getElementById('d_email').value=a.email||'';document.getElementById('d_nat').value=a.nationality||'';document.getElementById('d_fb').value=a.facebook||'';document.getElementById('d_ig').value=a.instagram||'';
-  document.getElementById('d_date').value=a.date||'';document.getElementById('d_people').value=a.people||'1';document.getElementById('d_msg').value=a.msg||'';
+  document.getElementById('d_date').value=a.date||'';document.getElementById('d_people').value=a.people||'1';document.getElementById('d_msg').value=a.msg||'';document.getElementById('d_amount').value=a.amount||'';
   const brs=branchNames();if(a.branch&&!brs.includes(a.branch))brs.push(a.branch);
   document.getElementById('d_branch').innerHTML=brs.map(n=>`<option value="${esc(n)}" ${n===a.branch?'selected':''}>${esc(brLabelAdm(n))}</option>`).join('');
   const cls=classNamesOf(a.branch);if(a.class&&!cls.includes(a.class))cls.push(a.class);
@@ -953,7 +960,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
 document.getElementById('d_branch').addEventListener('change',()=>{const b=dval('d_branch');const cls=classNamesOf(b);document.getElementById('d_class').innerHTML='<option value="">선택</option>'+cls.map(n=>`<option value="${esc(n)}">${esc(clsLabelAdm(b,n))}</option>`).join('');document.getElementById('d_size').innerHTML=dVolumeOpts(b,dval('d_class'),'');document.getElementById('d_time').innerHTML=dTimeOpts(b,dval('d_date'),'');});
 document.getElementById('d_class').addEventListener('change',()=>{document.getElementById('d_size').innerHTML=dVolumeOpts(dval('d_branch'),dval('d_class'),'');});
 document.getElementById('d_date').addEventListener('change',()=>{document.getElementById('d_time').innerHTML=dTimeOpts(dval('d_branch'),dval('d_date'),document.getElementById('d_time').value);});
-function dApplyTo(a){a.name=dval('d_name');a.phone=dval('d_phone');a.email=dval('d_email');a.nationality=dval('d_nat');a.facebook=dval('d_fb');a.instagram=dval('d_ig');a.branch=dval('d_branch');a.class=dval('d_class');a.size=dval('d_size');a.date=dval('d_date');a.time=dval('d_time');a.people=dval('d_people')||'1';a.msg=dval('d_msg');a.status=dval('d_status');}
+function dApplyTo(a){a.name=dval('d_name');a.phone=dval('d_phone');a.email=dval('d_email');a.nationality=dval('d_nat');a.facebook=dval('d_fb');a.instagram=dval('d_ig');a.branch=dval('d_branch');a.class=dval('d_class');a.size=dval('d_size');a.date=dval('d_date');a.time=dval('d_time');a.people=dval('d_people')||'1';a.msg=dval('d_msg');a.amount=dval('d_amount');a.status=dval('d_status');}
 document.getElementById('dSave').addEventListener('click',()=>{
   if(typeof l2Active==='function'&&l2Active()){const a=l2Get().find(x=>x.id===detailId);if(!a)return;dApplyTo(a);l2Dirty=true;closeDetail();renderList2();return;}
   const l=load();const a=l.find(x=>x.id===detailId);if(!a)return;dApplyTo(a);save(l);closeDetail();renderList();renderOverview();});
