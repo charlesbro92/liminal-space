@@ -242,7 +242,7 @@ function populateBranches(){
   const list=modal.querySelector('.opt-list[data-field="branch"]'); if(!list)return;
   const brs=getSettings().branches||[]; if(!brs.length)return;
   const lang=curLang();const soon=lang==='en'?'Opening soon':(lang==='vi'?'Sắp mở':'오픈 준비중');
-  list.innerHTML=brs.map(b=>`<div class="opt ${b.name===data.branch?'sel':''}" data-val="${esc(b.name)}"><div><div class="ti">${esc(b.name)}</div>${Lval(b.location,lang)?`<div class="de">${esc(Lval(b.location,lang))}</div>`:''}</div></div>`).join('');
+  list.innerHTML=brs.map(b=>`<div class="opt ${b.name===data.branch?'sel':''}" data-val="${esc(b.name)}"><div><div class="ti">${esc(branchLabel(b.name))}</div>${Lval(b.location,lang)?`<div class="de">${esc(Lval(b.location,lang))}</div>`:''}</div></div>`).join('');
   bindOptList(list);
 }
 /* STEP2 프로그램 옵션 (지점별 클래스 설정 연동) */
@@ -292,7 +292,7 @@ function renderClasses(){
   if(!classTabBranch || !branches.some(b=>b.name===classTabBranch)) classTabBranch=branches[0].name;
   // 지점 탭
   if(tabs){
-    tabs.innerHTML=branches.map(b=>`<button class="branch-tab ${b.name===classTabBranch?'active':''}" data-b="${esc(b.name)}">${esc(b.name)}</button>`).join('');
+    tabs.innerHTML=branches.map(b=>`<button class="branch-tab ${b.name===classTabBranch?'active':''}" data-b="${esc(b.name)}">${esc(branchLabel(b.name))}</button>`).join('');
     tabs.querySelectorAll('.branch-tab').forEach(t=>t.addEventListener('click',()=>{classTabBranch=t.dataset.b;renderClasses();}));
   }
   const branch=classTabBranch;
@@ -358,7 +358,7 @@ function renderLocation(){
     if(b.instagram)soc.push(`<a href="${esc(b.instagram)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Instagram</a>`);
     if(b.facebook)soc.push(`<a href="${esc(b.facebook)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Facebook</a>`);
     var hrs=Lval(b.hours,curLang());
-    return `<dt>${esc(b.name)}</dt><dd>${esc(Lval(b.location,curLang()))}${b.contact?` · ${esc(b.contact)}`:''}${b.link?` · <a href="${esc(b.link)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">${curLang()==='en'?'Visit':(curLang()==='vi'?'Xem':'바로가기')}</a>`:''}${hrs?'<br>'+esc(hrs):''}${soc.length?'<br>'+soc.join(' · '):''}</dd>`;
+    return `<dt>${esc(branchLabel(b.name))}</dt><dd>${esc(Lval(b.location,curLang()))}${b.contact?` · ${esc(b.contact)}`:''}${b.link?` · <a href="${esc(b.link)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">${curLang()==='en'?'Visit':(curLang()==='vi'?'Xem':'바로가기')}</a>`:''}${hrs?'<br>'+esc(hrs):''}${soc.length?'<br>'+soc.join(' · '):''}</dd>`;
   }).join('');
 }
 /* 찾아오는 길 지도 — 저장된 위치를 구글맵으로 표시(클릭 시 새 창) */
